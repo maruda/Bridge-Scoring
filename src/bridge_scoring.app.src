@@ -1,0 +1,12 @@
+{application, bridge_scoring,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { bridge_scoring_app, []}},
+  {env, []}
+ ]}.

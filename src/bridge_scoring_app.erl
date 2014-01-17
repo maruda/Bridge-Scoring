@@ -13,4 +13,4 @@ start(_StartType, _StartArgs) ->
     bridge_scoring_sup:start_link().
 
 stop(_State) ->
-    ok.
+    bridge_scoring_sup:stop().

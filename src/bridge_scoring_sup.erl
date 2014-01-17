@@ -23,5 +23,15 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, []} }.
+	MaxRestart = 5,
+	MaxTime = 10,
+	ShutdownTime = 6000,
+    {ok, { {one_for_one, MaxRestart, MaxTime}, 
+	 [{bs_server,
+		{bs_server, start_link, []},
+		transient,
+		ShutdownTime,
+		worker,
+		[bs_server]
+	  }]} }.
 

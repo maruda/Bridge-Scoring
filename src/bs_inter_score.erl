@@ -1,5 +1,11 @@
 -module(bs_inter_score).
 
+%% TODO 
+%% -Change 'under' to 'below'
+%% -Change naming from 'inter' or 'international' to 'rubber'
+%% -Clean the code
+%% -Separate test code
+
 -include_lib("eunit/include/eunit.hrl").
 -include("bs_data.hrl").
 

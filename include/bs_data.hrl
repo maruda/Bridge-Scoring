@@ -22,10 +22,10 @@
 %% Data Type: score
 %% where:
 %%	above: [[score_entry]]	A list of lists of entries to be put above the line in rubber scoring scheme
-%%	under: [score_entry]	A list of entries to be put below the line in rubber scoring scheme
+%%	below: [score_entry]	A list of entries to be put below the line in rubber scoring scheme
 %%	is_closed: boolean()	A flag indicating if rubber is finished or not
 %%---------------------------------------------------------------------
--record(score, {above=[], under=[], is_closed=false}).
+-record(score, {above=[], below=[], is_closed=false}).
 
 %%---------------------------------------------------------------------
 %% Data Type: score_entry (used in rubber scoring scheme)
@@ -54,4 +54,4 @@
 
 %%---------------------------------------------------------------------
 %%---------------------------------------------------------------------
--record(state, {score=#score{}, is_WE_vulnerable=false, is_NS_vulnerable=false, roundNo=0, gameNo=0}).
+-record(game_state, {game_type, score=#score{}, is_WE_vulnerable=false, is_NS_vulnerable=false, round_no=0, game_id=0}).

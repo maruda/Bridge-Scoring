@@ -12,7 +12,7 @@
 %%-------------------------------------------------------------
 -record(players_mapping, {'N', 'E', 'S', 'W'}).
 -record(history, {inter=[], sport=[], imp=[]}).
--record(session, {id, stateInter=#state{}, stateSport=#state{}, stateIMP=#state{}, players=#players_mapping{}, game_history=#history{}}).
+-record(session, {id, stateInter=#game_state{}, stateSport=#game_state{}, stateIMP=#game_state{}, players=#players_mapping{}, game_history=#history{}}).
 -record(app_state, {}).
 
 %%-------------------------------------------------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ stop() ->
 %%-------------------------------------------------------------
 %% new_game
 %%-------------------------------------------------------------
--spec new_game(SessionId::atom(), {GameType::atom(), Players::#players_mapping{}}) -> State::#state{}.
+-spec new_game(SessionId::atom(), {GameType::atom(), Players::#players_mapping{}}) -> State::#game_state{}.
 
 new_game(SessionId, {GameType, #players_mapping{}=Players}) ->
     gen_server:call(?SERVER, {new_game, GameType, SessionId, Players}).
@@ -74,34 +74,34 @@ new_game(SessionId, {GameType, #players_mapping{}=Players}) ->
 %%-------------------------------------------------------------
 %% clear_scores
 %%-------------------------------------------------------------
--spec clear_scores(SessionId::atom()) -> State::#state{}.
+-spec clear_scores(SessionId::atom()) -> State::#game_state{}.
 
 clear_scores(SessionId) ->
-    #state{}.
+    #game_state{}.
 
 %%-------------------------------------------------------------
 %% clear_last_game
 %%-------------------------------------------------------------
--spec clear_last_game(SessionId::atom()) -> State::#state{}.
+-spec clear_last_game(SessionId::atom()) -> State::#game_state{}.
 
 clear_last_game(SessionId) ->
-    #state{}.
+    #game_state{}.
 
 %%-------------------------------------------------------------
 %% process_game
 %%-------------------------------------------------------------
--spec process_game(SessionId::atom(), Data::game_data()) -> State::#state{}.
+-spec process_game(SessionId::atom(), Data::game_data()) -> State::#game_state{}.
 
 process_game(SessionId, Data) ->
-    #state{}.
+    #game_state{}.
 
 %%-------------------------------------------------------------
 %% set_players
 %%-------------------------------------------------------------
--spec set_players(SessionId::atom(), Players::#players_mapping{}) -> State::#state{}.
+-spec set_players(SessionId::atom(), Players::#players_mapping{}) -> State::#game_state{}.
 
 set_players(SessionIs, Players) ->
-    #state{}.
+    #game_state{}.
 
 %%-------------------------------------------------------------------------------------------------------------------------
 %%-------------------------------------------------------------
@@ -169,12 +169,12 @@ save_session(SessionId, Session) ->
 %%---------------------------
 %% handle_new_game
 %%---------------------------
-handle_new_game(?TYPE_INTERNATIONAL, #session{stateInter=#state{gameNo=GameNo}=Inter, players=ActPlayers, game_history=#history{inter=InterHistory}=History}=Session, Players) ->
-    NewInter = #state{gameNo=GameNo+1},
+handle_new_game(?TYPE_INTERNATIONAL, #session{stateInter=#game_state{game_id=GameNo}=Inter, players=ActPlayers, game_history=#history{inter=InterHistory}=History}=Session, Players) ->
+    NewInter = #game_state{game_id=GameNo+1},
     _NewSession = case GameNo of
         0 -> % do not update history as it is first game
             Session#session{stateInter=NewInter, players=Players};
-        _Other -> % move previous state to history
+        _Other -> % move previous game_state to history
             NewInterHistory = [{GameNo, Inter, ActPlayers}|InterHistory],
             NewHistory = History#history{inter=NewInterHistory},
             % return updated session

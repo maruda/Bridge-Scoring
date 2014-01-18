@@ -19,6 +19,7 @@
 -record(result, {taken, miltons}).
 
 %%---------------------------------------------------------------------
+%% TODO Move is_closed param to game_state record
 %% Data Type: score
 %% where:
 %%	above: [[score_entry]]	A list of lists of entries to be put above the line in rubber scoring scheme
@@ -55,3 +56,24 @@
 %%---------------------------------------------------------------------
 %%---------------------------------------------------------------------
 -record(game_state, {game_type, score=#score{}, is_WE_vulnerable=false, is_NS_vulnerable=false, round_no=0, game_id=0}).
+
+%%---------------------------------------------------------------------
+%%---------------------------------------------------------------------
+-record(player, {id, name}).
+
+%%---------------------------------------------------------------------
+%%---------------------------------------------------------------------
+-record(players, {north=#player{}, south=#player{}, west#player{}, east=#player{}}).
+
+%%---------------------------------------------------------------------
+%% Data Type: history
+%% where:
+%%	inter: A list of tuples containing #game_state and #players for international notation
+%%	sport : A list of tuples containing #game_state and #players for sport notation
+%%	imp : A list of tuples containing #game_state and #players for imp notation
+%%---------------------------------------------------------------------
+-record(history, {inter=[] , sport=[], imp=[]}).
+
+%%---------------------------------------------------------------------
+%%---------------------------------------------------------------------
+-record(bridge_session, {id, games_states=[{inter, #game_state{}}, {sport, #game_state{}}, {imp, #game_state{}}], players=#players{}, history=#history{}}).

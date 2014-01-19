@@ -63,7 +63,7 @@
 
 %%---------------------------------------------------------------------
 %%---------------------------------------------------------------------
--record(players, {north=#player{}, south=#player{}, west#player{}, east=#player{}}).
+-record(players, {north=#player{}, south=#player{}, west=#player{}, east=#player{}}).
 
 %%---------------------------------------------------------------------
 %% Data Type: history

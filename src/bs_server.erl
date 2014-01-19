@@ -44,7 +44,7 @@
 %% API methods
 %%-------------------------------------------------------------
 %% -export([new_game/2, clear_scores/1, clear_last_game/1, process_game/2, set_players/2]).
--export([new_session/0, get_session/1, new_game/2, process_deal/3, remove_game/2, remove_deal/3]).
+-export([new_session/0, get_session/1, new_game/2, process_deal/4, remove_game/2, remove_deal/3]).
 -export([set_player_name/3, switch_players/3]).
 
 
@@ -79,7 +79,7 @@ get_session(SessionId) ->
 %%-------------------------------------------------------------
 %% new_game
 %%-------------------------------------------------------------
--spec new_game(SessionId::atom(), GameType::atom()) -> State::#game_state{}.
+-spec new_game(SessionId::atom(), GameType::atom()) -> Session::#bridge_session{}.
 
 new_game(SessionId, GameType) ->
     gen_server:call(?SERVER, {new_game, GameType, SessionId}).
@@ -120,7 +120,7 @@ set_player_name(SessionId, Position, NewName) ->
 -spec switch_players(SessionId::atom(), Position1::atom(), Position2::atom()) -> Players::#players{}. 
 
 switch_players(SessionId, Position1, Position2) ->
-    gen_server:call(?SERVER, {switch_players, SessionId, Position1, Position2}}.
+    gen_server:call(?SERVER, {switch_players, SessionId, Position1, Position2}).
 
 %%-------------------------------------------------------------------------------------------------------------------------
 %%-------------------------------------------------------------
@@ -136,11 +136,52 @@ init(_Args) ->
 %%-------------------------------------------------------------
 %% handle_call
 %%-------------------------------------------------------------
-handle_call({new_game, GameType, SessionId, Players}, _From, State)->
-    Session = get_session(SessionId),
-    NewSession = handle_new_game(GameType, Players, Session),
-    save_session(SessionId, NewSession),
-    {reply, NewSession}.
+handle_call({new_session}, _From, State)->
+	Session = create_session(State),
+	NewState = save_session(Session, State), % State#state{sessions=[Session|Sessions]},
+	{reply, Session, NewState};
+
+handle_call({get_session, SessionId}, _From, State) ->
+	Session = get_session(SessionId, State),
+	NewState = save_session(Session, State),
+	{reply, Session, NewState}; 
+
+handle_call({new_game, SessionId, GameType}, _From, State)->
+    Session = get_session(SessionId, State),
+    NewSession = handle_new_game(GameType, Session),
+    NewState = save_session(NewSession, State),
+    {reply, NewSession, NewState};
+
+handle_call({process_deal, SessionId, GameType, Contract, Result}, _From, State)->
+    Session = get_session(SessionId, State),
+    { NewGameState, NewSession} = handle_process_deal(Session, GameType, Contract, Result),
+    NewState = save_session(NewSession, State),
+    {reply, NewGameState, NewState};
+
+handle_call({remove_game, SessionId, GameId}, _From, State) ->
+	Session = get_session(SessionId, State),
+	NewSession = handle_remove_game(Session, GameId),
+	NewState = save_session(NewSession, State),
+	{reply, ok, NewState};
+
+handle_call({remove_deal, SessionId, GameId, RoundNo}, _From, State) ->
+	Session = get_session(SessionId, State),
+	{GameState, NewSession} = handle_remove_deal(Session, GameId, RoundNo),
+	NewState = save_session(NewSession, State),
+	{reply, GameState, NewState};
+
+handle_call({set_player_name, SessionId, Position, Name}, _From, State) ->
+	Session = get_session(SessionId, State),
+	#bridge_session{players=Players}=NewSession = handle_player_name_change(Session, Position, Name),
+	NewState = save_session(NewSession, State),
+	{reply, Players, NewState};
+
+handle_call({switch_players, SessionId, Position1, Position2}, _From, State) ->
+	Session = get_session(SessionId, State),
+	#bridge_session{players=Players}=NewSession = handle_players_switch(Session, Position1, Position2),
+	NewState = save_session(NewSession, State),
+	{reply, Players, NewState}.
+
 
 %%-------------------------------------------------------------
 %% handle_cast
@@ -172,34 +213,123 @@ code_change(_OldVsn, State, _Extra) ->
 %% Private functions implementation
 %%-------------------------------------------------------------
 
+%% ==========================
+%% create_session
+%% ==========================
+create_session(_State) ->
+	Id = generate_id(),
+	create_session(Id).
+
+create_session(Id, _State) ->
+	#bridge_session{id=Id}.
+
+%% ===
+generate_id() ->
+	erlang:list_to_atom(uuid:uuid_to_string(uuid:get_v4())).
+
 %%---------------------------
-%%  get_session from db
+%%  get_session from db (temporarly from state)
 %%---------------------------
-get_session(SessionId) ->
-    % TODO
-    {error, not_implemented}.
+get_session(SessionId, #state{sessions=Sessions}=State) ->
+    Session = case find_session(SessionId, Sessions) of
+		{error, no_session} -> create_session(SessionId, State);
+		ASession -> ASession
+	end,
+	Session.
+
+%% ====
+find_session(_SessionId, []) ->
+	{error, no_session};
+find_session(SessionId, [#bridge_session{id=SessionId}=Session|_T]) ->
+	Session;
+find_session(SessionId, [_H|T]) ->
+	find_session(SessionId, T).
+%% ===
+
 
 %%---------------------------
 %%  save_session into db
 %%---------------------------
-save_session(SessionId, Session) ->
-    {error, not_implemented}.
+save_session(Session, #state{sessions=Sessions}=State) ->
+    State#state{sessions=[Session|Sessions]}.
 
 %%---------------------------
 %% handle_new_game
 %%---------------------------
-handle_new_game(?TYPE_INTERNATIONAL, #session{stateInter=#game_state{game_id=GameNo}=Inter, players=ActPlayers, game_history=#history{inter=InterHistory}=History}=Session, Players) ->
-    NewInter = #game_state{game_id=GameNo+1},
-    _NewSession = case GameNo of
-        0 -> % do not update history as it is first game
-            Session#session{stateInter=NewInter, players=Players};
-        _Other -> % move previous game_state to history
-            NewInterHistory = [{GameNo, Inter, ActPlayers}|InterHistory],
-            NewHistory = History#history{inter=NewInterHistory},
-            % return updated session
-            Session#session{stateInter=NewInter, players=Players, game_history=NewHistory}
-    end;
-handle_new_game(?TYPE_SPORT, _Session, _Players) ->
-    {error, not_implemented};        
-handle_new_game(?TYPE_IMP, _Session, _Players) ->
-    {error, not_implemented}.        
+handle_new_game(GameType, #bridge_session{games_states=GamesStates, players=Players, history=History}=Session) ->
+	% move current game to history
+	CurrentGame = get_current_game(GameType, GamesStates),
+	HistoryEntry = {CurrentGame, Players},
+	NewHistory = insert_into_history(GameType, HistoryEntry, History),
+	% create new game
+	NewGamesStates = replace_game(CurrentGame, create_new_game(GameType), GamesStates),
+	Session#bridge_session{games_states=NewGamesStates, history=NewHistory}.
+	
+%% ===
+get_current_game(GameType, [{GameType, CurrentGame}|_T]) ->
+	CurrentGame;
+get_current_game(GameType, [{_,_}|T]) ->
+	get_current_game(GameType, T).
+%% ===
+replace_game(#game_state{game_type=Type}=Game, NewGame, Games) ->
+	Filtered = lists:filter(fun({_, X}) -> X == Game end, Games),
+	[{Type, NewGame}|Filtered].
+%% ===
+create_new_game(GameType) ->
+	#game_state{game_id=generate_id(), game_type=GameType}.
+%% ===
+insert_into_history(inter, Entry, #history{inter=Old}=History) ->
+	History#history{inter=[Entry|Old]};
+insert_into_history(sport, Entry, #history{sport=Old}=History) ->
+	History#history{sport=[Entry|Old]};
+insert_into_history(imp, Entry, #history{imp=Old}=History) ->
+	History#history{imp=[Entry|Old]}.
+%% ===
+
+%% =============================
+%% handle_process_deal
+%% =============================
+handle_process_deal(Session, GameType, Contract, Result) ->
+	GameState = get_current_game(Session, GameType),
+	handle_process_deal(GameState, Contract, Result).
+
+handle_process_deal(#game_state{game_type=inter}=GameState, Contract, Result) ->
+	bs_inter_score:process(GameState, Contract, Result);
+handle_process_deal(_GameState, _Contract, _Result) ->
+	{error, unknown_game_type}.
+		
+%% =============================
+%% handle_remove_game
+%% =============================
+handle_remove_game(Session, GameId) ->
+	{error, not_yet_implemented}.
+%% =============================
+%% handle_remove_deal
+%% =============================
+handle_remove_deal(Session, GameId, RoundNo) ->
+	{error, not_implemented_yet}.
+%% =============================
+%% handle_player_name_changed
+%% =============================
+handle_player_name_change(#bridge_session{players=Players}=Session, Position, Name) ->
+	NewPlayers = case Position of
+		north -> 
+			Old = Players#players.north,
+			Players#players{north=Old#player{name=Name}};
+		south ->
+			Old = Players#players.south,
+			Players#players{south=Old#player{name=Name}};
+		west ->
+			Old = Players#players.west,
+			Players#players{west=Old#player{name=Name}};
+		east ->
+			Old = Players#players.east,
+			Players#players{east=Old#player{name=Name}}
+	end,
+	Session#bridge_session{players=NewPlayers}.
+%% =============================
+%% handle_players_switch
+%% =============================
+handle_players_switch(Session, Position1, Position2) ->
+	{error, not_implemented_yet}.
+

@@ -53,9 +53,11 @@
 %% start / stop methods implementation
 %%-------------------------------------------------------------
 start_link() ->
+	log("Starting server"),
 	gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
 stop() ->
+	log("Stopping server"),
 	gen_server:cast(?SERVER, stop).
 %%-------------------------------------------------------------------------------------------------------------------------
 %% API methods implementation
@@ -66,6 +68,7 @@ stop() ->
 -spec new_session() -> Session::#bridge_session{}.
 
 new_session() ->
+	log("Calling for new session"),
 	gen_server:call(?SERVER, {new_session}).
 
 %%-------------------------------------------------------------
@@ -137,8 +140,11 @@ init(_Args) ->
 %% handle_call
 %%-------------------------------------------------------------
 handle_call({new_session}, _From, State)->
+	log("Handling call for new session. Current state is ~p", [State]),
 	Session = create_session(State),
-	NewState = save_session(Session, State), % State#state{sessions=[Session|Sessions]},
+	log("Session created"),
+	NewState = save_session(Session, State), 
+	log("State updated. New state is ~p", [NewState]),
 	{reply, Session, NewState};
 
 handle_call({get_session, SessionId}, _From, State) ->
@@ -216,16 +222,17 @@ code_change(_OldVsn, State, _Extra) ->
 %% ==========================
 %% create_session
 %% ==========================
-create_session(_State) ->
+create_session(State) ->
 	Id = generate_id(),
-	create_session(Id).
+	create_session(Id, State).
 
 create_session(Id, _State) ->
 	#bridge_session{id=Id}.
 
 %% ===
 generate_id() ->
-	erlang:list_to_atom(uuid:uuid_to_string(uuid:get_v4())).
+	erlang:binary_to_atom(erlang:term_to_binary(now()),latin1).
+	%erlang:list_to_atom(uuid:to_string(uuid:uuid4())).
 
 %%---------------------------
 %%  get_session from db (temporarly from state)
@@ -333,3 +340,11 @@ handle_player_name_change(#bridge_session{players=Players}=Session, Position, Na
 handle_players_switch(Session, Position1, Position2) ->
 	{error, not_implemented_yet}.
 
+%% ============================================================================================
+%% Log producing finctions
+%% ============================================================================================
+log(Msg) ->
+	log(Msg, []).
+
+log(Format, Args) ->
+	io:format("~p| "++Format++"~n", [self()|Args]).

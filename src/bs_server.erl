@@ -10,17 +10,12 @@
 %%-------------------------------------------------------------
 %% state definition 
 %%-------------------------------------------------------------
--record(players_mapping, {'N', 'E', 'S', 'W'}).
--record(history, {inter=[], sport=[], imp=[]}).
--record(session, {id, stateInter=#game_state{}, stateSport=#game_state{}, stateIMP=#game_state{}, players=#players_mapping{}, game_history=#history{}}).
--record(app_state, {}).
-
+% XXX temporary state - finally sessions shall be moved to database
+-record(state, {sessions=[]}).
 %%-------------------------------------------------------------------------------------------------------------------------
 %%-------------------------------------------------------------
 %% types declaration
 %%-------------------------------------------------------------
--type game_data() :: {Contract::#contract{}, Result::#result{}}.
--type players_mapping() :: #players_mapping{}.
 
 %%-------------------------------------------------------------------------------------------------------------------------
 %%-------------------------------------------------------------
@@ -46,9 +41,11 @@
 
 %%-------------------------------------------------------------------------------------------------------------------------
 %%-------------------------------------------------------------
-%% API callbacks
+%% API methods
 %%-------------------------------------------------------------
--export([new_game/2, clear_scores/1, clear_last_game/1, process_game/2, set_players/2]).
+%% -export([new_game/2, clear_scores/1, clear_last_game/1, process_game/2, set_players/2]).
+-export([new_session/0, get_session/1, new_game/2, process_deal/3, remove_game/2, remove_deal/3]).
+-export([set_player_name/3, switch_players/3]).
 
 
 %%-------------------------------------------------------------------------------------------------------------------------
@@ -61,47 +58,69 @@ start_link() ->
 stop() ->
 	gen_server:cast(?SERVER, stop).
 %%-------------------------------------------------------------------------------------------------------------------------
-%% API callbacks implementation
+%% API methods implementation
 %%-------------------------------------------------------------
+%%-------------------------------------------------------------
+%% new_session
+%%-------------------------------------------------------------
+-spec new_session() -> Session::#bridge_session{}.
+
+new_session() ->
+	gen_server:call(?SERVER, {new_session}).
+
+%%-------------------------------------------------------------
+%% get_session
+%%-------------------------------------------------------------
+-spec get_session(SessionId::atom()) -> Session::#bridge_session{}.
+
+get_session(SessionId) ->
+	gen_server:call(?SERVER, {get_session, SessionId}).
+
 %%-------------------------------------------------------------
 %% new_game
 %%-------------------------------------------------------------
--spec new_game(SessionId::atom(), {GameType::atom(), Players::#players_mapping{}}) -> State::#game_state{}.
+-spec new_game(SessionId::atom(), GameType::atom()) -> State::#game_state{}.
 
-new_game(SessionId, {GameType, #players_mapping{}=Players}) ->
-    gen_server:call(?SERVER, {new_game, GameType, SessionId, Players}).
-
-%%-------------------------------------------------------------
-%% clear_scores
-%%-------------------------------------------------------------
--spec clear_scores(SessionId::atom()) -> State::#game_state{}.
-
-clear_scores(SessionId) ->
-    #game_state{}.
+new_game(SessionId, GameType) ->
+    gen_server:call(?SERVER, {new_game, GameType, SessionId}).
 
 %%-------------------------------------------------------------
-%% clear_last_game
+%% process_deal
 %%-------------------------------------------------------------
--spec clear_last_game(SessionId::atom()) -> State::#game_state{}.
+-spec process_deal(SessionId::atom(), GameType::atom(), Contract::#contract{}, Result::#result{}) -> State::#game_state{}.
 
-clear_last_game(SessionId) ->
-    #game_state{}.
-
-%%-------------------------------------------------------------
-%% process_game
-%%-------------------------------------------------------------
--spec process_game(SessionId::atom(), Data::game_data()) -> State::#game_state{}.
-
-process_game(SessionId, Data) ->
-    #game_state{}.
+process_deal(SessionId, GameType, Contract, Result) ->
+    gen_server:call(?SERVER, {process_deal, SessionId, GameType, Contract, Result}).
 
 %%-------------------------------------------------------------
-%% set_players
+%% remove_game
 %%-------------------------------------------------------------
--spec set_players(SessionId::atom(), Players::#players_mapping{}) -> State::#game_state{}.
+-spec remove_game(SessionId::atom(), GameId::atom()) -> ok | error.
 
-set_players(SessionIs, Players) ->
-    #game_state{}.
+remove_game(SessionId, GameId) ->
+	gen_server:call(?SERVER, {remove_game, SessionId, GameId}).
+%%-------------------------------------------------------------
+%% remove_deal
+%%-------------------------------------------------------------
+-spec remove_deal(SessionId::atom(), GameId::atom(), RoundNo::integer()) -> Result::#game_state{}.
+
+remove_deal(SessionId, GameId, RoundNo) ->
+	gen_server:call(?SERVER, {remove_deal, SessionId, GameId, RoundNo}).
+%%-------------------------------------------------------------
+%% set_player_name
+%%		position: nort | south | west | east
+%%-------------------------------------------------------------
+-spec set_player_name(SessionId::atom(), Position::atom(), NewName::string()) -> Players::#players{}.
+
+set_player_name(SessionId, Position, NewName) ->
+	gen_server:call(?SERVER, {set_player_name, SessionId, Position, NewName}).
+%%-------------------------------------------------------------
+%% switch_players
+%%-------------------------------------------------------------
+-spec switch_players(SessionId::atom(), Position1::atom(), Position2::atom()) -> Players::#players{}. 
+
+switch_players(SessionId, Position1, Position2) ->
+    gen_server:call(?SERVER, {switch_players, SessionId, Position1, Position2}}.
 
 %%-------------------------------------------------------------------------------------------------------------------------
 %%-------------------------------------------------------------
@@ -111,7 +130,7 @@ set_players(SessionIs, Players) ->
 %% init
 %%-------------------------------------------------------------
 init(_Args) ->
-    State = #app_state{},
+    State = #state{},
     {ok, State}.
 
 %%-------------------------------------------------------------

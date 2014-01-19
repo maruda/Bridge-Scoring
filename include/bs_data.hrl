@@ -59,11 +59,11 @@
 
 %%---------------------------------------------------------------------
 %%---------------------------------------------------------------------
--record(player, {id, name}).
+-record(player, {id, position, name}).
 
 %%---------------------------------------------------------------------
 %%---------------------------------------------------------------------
--record(players, {north=#player{}, south=#player{}, west=#player{}, east=#player{}}).
+% -record(players, {north=#player{}, south=#player{}, west=#player{}, east=#player{}}).
 
 %%---------------------------------------------------------------------
 %% Data Type: history
@@ -76,4 +76,4 @@
 
 %%---------------------------------------------------------------------
 %%---------------------------------------------------------------------
--record(bridge_session, {id, games_states=[{inter, #game_state{}}, {sport, #game_state{}}, {imp, #game_state{}}], players=#players{}, history=#history{}}).
+-record(bridge_session, {id, games_states=[{inter, #game_state{}}, {sport, #game_state{}}, {imp, #game_state{}}], players=[], history=#history{}}).

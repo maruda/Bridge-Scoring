@@ -113,14 +113,14 @@ remove_deal(SessionId, GameId, RoundNo) ->
 %% set_player_name
 %%		position: nort | south | west | east
 %%-------------------------------------------------------------
--spec set_player_name(SessionId::atom(), Position::atom(), NewName::string()) -> Players::#players{}.
+-spec set_player_name(SessionId::atom(), Position::atom(), NewName::string()) -> Player::#player{}. 
 
 set_player_name(SessionId, Position, NewName) ->
 	gen_server:call(?SERVER, {set_player_name, SessionId, Position, NewName}).
 %%-------------------------------------------------------------
 %% switch_players
 %%-------------------------------------------------------------
--spec switch_players(SessionId::atom(), Position1::atom(), Position2::atom()) -> Players::#players{}. 
+-spec switch_players(SessionId::atom(), Position1::atom(), Position2::atom()) -> Players::list(). 
 
 switch_players(SessionId, Position1, Position2) ->
     gen_server:call(?SERVER, {switch_players, SessionId, Position1, Position2}).
@@ -227,12 +227,20 @@ create_session(State) ->
 	create_session(Id, State).
 
 create_session(Id, _State) ->
-	#bridge_session{id=Id}.
+	Players = create_players(),
+	#bridge_session{id=Id, players=Players}.
 
 %% ===
 generate_id() ->
 	erlang:binary_to_atom(erlang:term_to_binary(now()),latin1).
 	%erlang:list_to_atom(uuid:to_string(uuid:uuid4())).
+%% ===
+create_players() ->
+	North = #player{id=player_one, position=north, name="Player N"},
+	South = #player{id=player_two, position=south, name="Player S"},
+	West = #player{id=player_three, position=west, name="Player W"},
+	East = #player{id=player_four, position=east, name="Player E"},
+	[North, South, West, East].
 
 %%---------------------------
 %%  get_session from db (temporarly from state)
@@ -319,26 +327,30 @@ handle_remove_deal(Session, GameId, RoundNo) ->
 %% handle_player_name_changed
 %% =============================
 handle_player_name_change(#bridge_session{players=Players}=Session, Position, Name) ->
-	NewPlayers = case Position of
-		north -> 
-			Old = Players#players.north,
-			Players#players{north=Old#player{name=Name}};
-		south ->
-			Old = Players#players.south,
-			Players#players{south=Old#player{name=Name}};
-		west ->
-			Old = Players#players.west,
-			Players#players{west=Old#player{name=Name}};
-		east ->
-			Old = Players#players.east,
-			Players#players{east=Old#player{name=Name}}
-	end,
+	NewPlayers = lists:map(fun(#player{position=Pos}=Player) -> case Pos == Position of 
+														true -> Player#player{name=Name}; 
+														false -> Player end end, Players),
 	Session#bridge_session{players=NewPlayers}.
+
 %% =============================
 %% handle_players_switch
 %% =============================
-handle_players_switch(Session, Position1, Position2) ->
-	{error, not_implemented_yet}.
+handle_players_switch(#bridge_session{players=Players}=Session, Position1, Position2) ->
+	NewPlayers = do_players_switch(Players, Position1, Position2),
+	Session#bridge_session{players=NewPlayers}.
+
+do_players_switch(Players, Pos1, Pos2) ->
+	do_players_switch(Players, Pos1, Pos2, []).
+
+do_players_switch([], _, _, NewPlayers) ->
+	lists:reverse(NewPlayers);
+do_players_switch([#player{position=Pos}=Switched|T], Pos, NewPos, NewPlayers) ->
+	do_players_switch(T, Pos, NewPos, [Switched#player{position=NewPos}|NewPlayers]);
+do_players_switch([#player{position=Pos}=Switched|T], NewPos, Pos, NewPlayers) ->
+	do_players_switch(T, NewPos, Pos, [Switched#player{position=NewPos}|NewPlayers]);
+do_players_switch([H|T], Pos1, Pos2, NewPlayers) ->
+	do_players_switch(T, Pos1, Pos2, [H|NewPlayers]).
+
 
 %% ============================================================================================
 %% Log producing finctions

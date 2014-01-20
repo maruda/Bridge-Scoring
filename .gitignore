@@ -1,2 +1,5 @@
 ebin/
 doc/
+lib/
+*.dump
+*.swo

@@ -305,7 +305,7 @@ insert_into_history(imp, Entry, #history{imp=Old}=History) ->
 %% handle_process_deal
 %% =============================
 handle_process_deal(Session, GameType, Contract, Result) ->
-	GameState = get_current_game(GameType, Session#session.games_states),
+	GameState = get_current_game(GameType, Session#bridge_session.games_states),
 	handle_process_deal(GameState, Contract, Result).
 
 handle_process_deal(#game_state{game_type=inter}=GameState, Contract, Result) ->

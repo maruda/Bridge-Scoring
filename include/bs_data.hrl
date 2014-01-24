@@ -76,4 +76,4 @@
 
 %%---------------------------------------------------------------------
 %%---------------------------------------------------------------------
--record(bridge_session, {id, games_states=[{inter, #game_state{}}, {sport, #game_state{}}, {imp, #game_state{}}], players=[], history=#history{}}).
+-record(bridge_session, {id, games_states=[{inter, #game_state{game_type=inter}}, {sport, #game_state{game_type=sport}}, {imp, #game_state{game_type=imp}}], players=[], history=#history{}}).

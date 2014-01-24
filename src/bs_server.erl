@@ -232,7 +232,8 @@ create_session(Id, _State) ->
 
 %% ===
 generate_id() ->
-	erlang:binary_to_atom(erlang:term_to_binary(now()),latin1).
+    {_,_,Id} = now(),
+	erlang:binary_to_atom(erlang:term_to_binary(Id),latin1).
 	%erlang:list_to_atom(uuid:to_string(uuid:uuid4())).
 %% ===
 create_players() ->
@@ -246,6 +247,7 @@ create_players() ->
 %%  get_session from db (temporarly from state)
 %%---------------------------
 get_session(SessionId, #state{sessions=Sessions}=State) ->
+    io:format("~p | Getting session ~p out of state ~p~n", [self(), SessionId, State]),
     Session = case find_session(SessionId, Sessions) of
 		{error, no_session} -> create_session(SessionId, State);
 		ASession -> ASession
@@ -253,20 +255,28 @@ get_session(SessionId, #state{sessions=Sessions}=State) ->
 	Session.
 
 %% ====
-find_session(_SessionId, []) ->
-	{error, no_session};
 find_session(SessionId, [#bridge_session{id=SessionId}=Session|_T]) ->
 	Session;
 find_session(SessionId, [_H|T]) ->
-	find_session(SessionId, T).
+	find_session(SessionId, T);
+find_session(_SessionId, []) ->
+	{error, no_session}.
 %% ===
 
 
 %%---------------------------
 %%  save_session into db
 %%---------------------------
-save_session(Session, #state{sessions=Sessions}=State) ->
-    State#state{sessions=[Session|Sessions]}.
+save_session(#bridge_session{id=Id}=Session, #state{sessions=Sessions}=State) ->
+    NewSessions = case find_session(Id, Sessions) of
+        {error, no_session} -> [Session|Sessions];
+        _ -> lists:map(fun(#bridge_session{id=Sid}=X) -> 
+                case Sid of
+                    Id -> Session;
+                    _ -> X 
+                end end, Sessions)
+    end,
+    State#state{sessions=NewSessions}.
 
 %%---------------------------
 %% handle_new_game

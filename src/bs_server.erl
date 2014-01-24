@@ -247,7 +247,6 @@ create_players() ->
 %%  get_session from db (temporarly from state)
 %%---------------------------
 get_session(SessionId, #state{sessions=Sessions}=State) ->
-    io:format("~p | Getting session ~p out of state ~p~n", [self(), SessionId, State]),
     Session = case find_session(SessionId, Sessions) of
 		{error, no_session} -> create_session(SessionId, State);
 		ASession -> ASession
@@ -319,7 +318,7 @@ handle_process_deal(Session, GameType, Contract, Result) ->
 	handle_process_deal(GameState, Contract, Result).
 
 handle_process_deal(#game_state{game_type=inter}=GameState, Contract, Result) ->
-	bs_inter_score:process(GameState, Contract, Result);
+	bs_inter_score:process(Contract, Result, GameState);
 handle_process_deal(_GameState, _Contract, _Result) ->
 	{error, unknown_game_type}.
 		

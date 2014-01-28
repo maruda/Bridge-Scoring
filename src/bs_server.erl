@@ -317,8 +317,8 @@ handle_process_deal(Session, GameType, Contract, Result) ->
 	GameState = get_current_game(GameType, Session#bridge_session.games_states),
 	handle_process_deal(GameState, Contract, Result).
 
-handle_process_deal(#game_state{game_type=inter}=GameState, Contract, Result) ->
-	bs_inter_score:process(Contract, Result, GameState);
+handle_process_deal(#game_state{game_type=inter}=GameState, Contract,#result{taken=Taken}=_Result) ->
+	bs_inter_score:process(Contract, Taken, GameState);
 handle_process_deal(_GameState, _Contract, _Result) ->
 	{error, unknown_game_type}.
 		

@@ -205,7 +205,9 @@ handle_info(_Msg, State) ->
 %% terminate
 %%-------------------------------------------------------------
 terminate(shutdown, _State) ->
-    ok.
+    ok;
+terminate(_Reason, _State) ->
+    error.
 
 %%-------------------------------------------------------------
 %% code_change

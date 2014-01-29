@@ -85,7 +85,7 @@ get_session(SessionId) ->
 -spec new_game(SessionId::atom(), GameType::atom()) -> Session::#bridge_session{}.
 
 new_game(SessionId, GameType) ->
-    gen_server:call(?SERVER, {new_game, GameType, SessionId}).
+    gen_server:call(?SERVER, {new_game, SessionId, GameType}).
 
 %%-------------------------------------------------------------
 %% process_deal

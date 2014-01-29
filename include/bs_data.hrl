@@ -55,7 +55,7 @@
 
 %%---------------------------------------------------------------------
 %%---------------------------------------------------------------------
--record(game_state, {game_type, score=#score{}, is_WE_vulnerable=false, is_NS_vulnerable=false, round_no=0, game_id}).
+-record(game_state, {game_id, game_type, round_no=1, score=#score{}, is_WE_vulnerable=false, is_NS_vulnerable=false}).
 
 %%---------------------------------------------------------------------
 %%---------------------------------------------------------------------

@@ -93,7 +93,14 @@ new_game(SessionId, GameType) ->
 -spec process_deal(SessionId::atom(), GameType::atom(), Contract::#contract{}, Result::#result{}) -> State::#game_state{}.
 
 process_deal(SessionId, GameType, Contract, Result) ->
-    gen_server:call(?SERVER, {process_deal, SessionId, GameType, Contract, Result}).
+    GameState = gen_server:call(?SERVER, {process_deal, SessionId, GameType, Contract, Result}),
+    case GameState#game_state.score#score.is_closed of
+        true ->
+            new_game(SessionId, GameType);
+        false ->
+            ok
+    end,
+    GameState.
 
 %%-------------------------------------------------------------
 %% remove_game

@@ -160,7 +160,8 @@ handle_call({new_game, SessionId, GameType}, _From, State)->
 
 handle_call({process_deal, SessionId, GameType, Contract, Result}, _From, State)->
     Session = get_session(SessionId, State),
-    { NewGameState, NewSession} = handle_process_deal(Session, GameType, Contract, Result),
+    NewGameState = handle_process_deal(Session, GameType, Contract, Result),
+    NewSession = Session#bridge_session{games_states=set_current_game(NewGameState, Session#bridge_session.games_states)},
     NewState = save_session(NewSession, State),
     {reply, NewGameState, NewState};
 
@@ -296,6 +297,17 @@ get_current_game(GameType, [{GameType, CurrentGame}|_T]) ->
 	CurrentGame;
 get_current_game(GameType, [{_,_}|T]) ->
 	get_current_game(GameType, T).
+%% ===
+set_current_game(GameState, GamesStates) ->
+    set_current_game(GameState, GamesStates, []).
+
+set_current_game(_Game, [], NewStates) ->
+    NewStates;
+set_current_game(#game_state{game_type=Type}=Game, [{Type, _Prev}|T], NewStates) ->
+    set_current_game(Game, T, [{Type, Game}|NewStates]);
+set_current_game(Game, [H|T], NewStates) ->
+    set_current_game(Game, T, [H|NewStates]).
+
 %% ===
 replace_game(#game_state{game_type=Type}=Game, NewGame, Games) ->
 	Filtered = lists:filter(fun({_, X}) -> X == Game end, Games),

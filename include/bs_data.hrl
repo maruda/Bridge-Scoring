@@ -54,26 +54,53 @@
 -record(score_entry_imp, {count, first, second, third, fourth}). 
 
 %%---------------------------------------------------------------------
+%% Data Type: summary   (used when game is finished)
+%% where:
+%%  winner:     'WE' | 'NS'
+%%  we_score:   integer()
+%%  ns_score:   integer()
+%%---------------------------------------------------------------------
+-record(summary, {winner, we_score, ns_score}).
+
+%%---------------------------------------------------------------------
+%% Data Type: game_state
+%% where:
+%%  game_id:    atom()
+%%  game_type:  inter | sport | imp
+%%  round_no:   integer()
+%%  score:      #score()
+%%  is_WE_vulnerable:   boolean()
+%%  is_NS_vulnerable:   boolean()
+%%  status:     unfinished | #summary()
 %%---------------------------------------------------------------------
 -record(game_state, {game_id, game_type, round_no=1, score=#score{}, is_WE_vulnerable=false, is_NS_vulnerable=false}).
 
 %%---------------------------------------------------------------------
+%% Data Type: player
+%% where:
+%%  id:         An identifier unique through the bridge session, helps to keep track of player name or position changes
+%%  position:   north | east | south | west
+%%  name:       Name of player.
 %%---------------------------------------------------------------------
 -record(player, {id, position, name}).
 
 %%---------------------------------------------------------------------
-%%---------------------------------------------------------------------
-% -record(players, {north=#player{}, south=#player{}, west=#player{}, east=#player{}}).
-
-%%---------------------------------------------------------------------
 %% Data Type: history
 %% where:
-%%	inter: A list of tuples containing #game_state and #players for international notation
-%%	sport : A list of tuples containing #game_state and #players for sport notation
-%%	imp : A list of tuples containing #game_state and #players for imp notation
+%%	inter:   A list of tuples containing #game_state and players for international notation
+%%	sport :  A list of tuples containing #game_state and players for sport notation
+%%	imp :    A list of tuples containing #game_state and players for imp notation
 %%---------------------------------------------------------------------
 -record(history, {inter=[] , sport=[], imp=[]}).
 
 %%---------------------------------------------------------------------
+%% Data Type: bridge_session
+%% where:
+%%  id:             atom() 
+%%  games_states:   list() - list of #game_state() !!! Will be changed !!!
+%%  players:        list() - list of #player()
+%%  history:        #history()
+%% TODO:
+%%  - Change games_states into list of records (not tuples containing redundant atom)
 %%---------------------------------------------------------------------
 -record(bridge_session, {id, games_states=[{inter, #game_state{game_type=inter}}, {sport, #game_state{game_type=sport}}, {imp, #game_state{game_type=imp}}], players=[], history=#history{}}).

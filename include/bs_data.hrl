@@ -84,7 +84,7 @@
 %%  is_NS_vulnerable:   boolean()
 %%  status:     unfinished | #summary()
 %%---------------------------------------------------------------------
--record(game_state, {game_id, game_type, round_no=1, score=#score{}, is_WE_vulnerable=false, is_NS_vulnerable=false}).
+-record(game_state, {game_id, game_type, round_no=1, score=#score{}, is_WE_vulnerable=false, is_NS_vulnerable=false, status=unfinished}).
 
 %%---------------------------------------------------------------------
 %% Data Type: player

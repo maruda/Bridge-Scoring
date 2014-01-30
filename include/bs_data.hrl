@@ -1,5 +1,16 @@
 
 %%---------------------------------------------------------------------
+%% constants used in modules
+%%---------------------------------------------------------------------
+-define(POINTS_FOR_CLUBS_TRICK, 20).
+-define(POINTS_FOR_DIMONDS_TRICK, 20).
+-define(POINTS_FOR_HEARTS_TRICK, 30).
+-define(POINTS_FOR_SPADES_TRICK, 30).
+-define(POINTS_FOR_NOTRUMPH_TRICK, 30).
+-define(POINTS_FOR_FIRST_NOTRUMPH_TRICK, 40).
+
+
+%%---------------------------------------------------------------------
 %% Data Type: contract
 %% where:
 %%	owner:	   'NS'|'WE'	A pair who declared this contract	

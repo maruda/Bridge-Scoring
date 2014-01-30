@@ -30,14 +30,13 @@
 -record(result, {taken, miltons}).
 
 %%---------------------------------------------------------------------
-%% TODO Move is_closed param to game_state record
 %% Data Type: score
 %% where:
 %%	above: [[score_entry]]	A list of lists of entries to be put above the line in rubber scoring scheme
 %%	below: [score_entry]	A list of entries to be put below the line in rubber scoring scheme
 %%	is_closed: boolean()	A flag indicating if rubber is finished or not
 %%---------------------------------------------------------------------
--record(score, {above=[[]], below=[], is_closed=false}).
+-record(score, {above=[[]], below=[]}).
 
 %%---------------------------------------------------------------------
 %% Data Type: score_entry (used in rubber scoring scheme)

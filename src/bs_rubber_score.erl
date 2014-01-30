@@ -287,13 +287,11 @@ sum_one_entry([{Points, _}|T], Acc) ->
 close_game(State) ->
     Winner = who_won_game(State#game_state.score),
     NewScore = move_points_from_below_to_above(State#game_state.score),
-    RetState = case is_rubber_done(Winner, State) of
-        false -> 
-            State#game_state{score=NewScore}; 
-        true ->
-            Summary = create_summary(NewScore),
-            State#game_state{score=NewScore#score{is_closed=true}, status=Summary} 
+    Summary = case is_rubber_done(Winner, State) of
+        false -> unfinished;
+        true -> create_summary(NewScore)
     end,
+    RetState = State#game_state{score=NewScore, status=Summary},
     set_vulnerable(Winner, RetState).
 
 %%---------------------------------------------------------------------------------------------------------------------------

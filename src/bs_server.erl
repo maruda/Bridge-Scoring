@@ -95,11 +95,11 @@ new_game(SessionId, GameType) ->
 
 process_deal(SessionId, GameType, Contract, Result) ->
     GameState = gen_server:call(?SERVER, {process_deal, SessionId, GameType, Contract, Result}),
-    case GameState#game_state.score#score.is_closed of
-        true ->
-            new_game(SessionId, GameType);
-        false ->
-            ok
+    case GameState#game_state.status of
+        unfinished ->
+            ok;
+        _ ->
+            new_game(SessionId, GameType)
     end,
     GameState.
 

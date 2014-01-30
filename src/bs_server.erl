@@ -85,6 +85,7 @@ get_session(SessionId) ->
 -spec new_game(SessionId::atom(), GameType::atom()) -> Session::#bridge_session{}.
 
 new_game(SessionId, GameType) ->
+    log("Starting new game -> API invoked"),
     gen_server:call(?SERVER, {new_game, SessionId, GameType}).
 
 %%-------------------------------------------------------------
@@ -160,6 +161,7 @@ handle_call({get_session, SessionId}, _From, State) ->
 	{reply, Session, NewState}; 
 
 handle_call({new_game, SessionId, GameType}, _From, State)->
+    log("Starting new game -> gen_server callback"),
     Session = get_session(SessionId, State),
     NewSession = handle_new_game(GameType, Session),
     NewState = save_session(NewSession, State),
@@ -242,9 +244,8 @@ create_session(Id, _State) ->
 
 %% ===
 generate_id() ->
-    {_,_,Id} = now(),
-	erlang:binary_to_atom(erlang:term_to_binary(Id),latin1).
-	%erlang:list_to_atom(uuid:to_string(uuid:uuid4())).
+    list_to_atom(lists:flatten(io_lib:format("~p_~p_~p", tuple_to_list(now())))).
+
 %% ===
 create_players() ->
 	North = #player{id=player_one, position=north, name="Player N"},
@@ -291,6 +292,7 @@ save_session(#bridge_session{id=Id}=Session, #state{sessions=Sessions}=State) ->
 %% handle_new_game
 %%---------------------------
 handle_new_game(GameType, #bridge_session{games_states=GamesStates, players=Players, history=History}=Session) ->
+    log("Starting new game -> handler method"),
 	% move current game to history
 	CurrentGame = get_current_game(GameType, GamesStates),
 	HistoryEntry = {CurrentGame, Players},

@@ -1,5 +1,6 @@
 ebin/
 doc/
 lib/
+.eunit/
 *.dump
 *.swo

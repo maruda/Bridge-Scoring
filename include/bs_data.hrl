@@ -77,7 +77,7 @@
 %% Data Type: game_state
 %% where:
 %%  game_id:    atom()
-%%  game_type:  inter | sport | imp
+%%  game_type:  rubber | sport | imp
 %%  round_no:   integer()
 %%  score:      #score()
 %%  is_WE_vulnerable:   boolean()
@@ -98,11 +98,11 @@
 %%---------------------------------------------------------------------
 %% Data Type: history
 %% where:
-%%	inter:   A list of tuples containing #game_state and players for international notation
+%%	rubber:   A list of tuples containing #game_state and players for rubbernational notation
 %%	sport :  A list of tuples containing #game_state and players for sport notation
 %%	imp :    A list of tuples containing #game_state and players for imp notation
 %%---------------------------------------------------------------------
--record(history, {inter=[] , sport=[], imp=[]}).
+-record(history, {rubber=[] , sport=[], imp=[]}).
 
 %%---------------------------------------------------------------------
 %% Data Type: bridge_session
@@ -114,4 +114,4 @@
 %% TODO:
 %%  - Change games_states into list of records (not tuples containing redundant atom)
 %%---------------------------------------------------------------------
--record(bridge_session, {id, games_states=[{inter, #game_state{game_type=inter}}, {sport, #game_state{game_type=sport}}, {imp, #game_state{game_type=imp}}], players=[], history=#history{}}).
+-record(bridge_session, {id, games_states=[{rubber, #game_state{game_type=rubber}}, {sport, #game_state{game_type=sport}}, {imp, #game_state{game_type=imp}}], players=[], history=#history{}}).

@@ -24,7 +24,7 @@
 -define(SERVER, ?MODULE).
 
 % game scoring types
--define(TYPE_INTERNATIONAL, inter).
+-define(TYPE_INTERNATIONAL, rubber).
 -define(TYPE_SPORT, sport).
 -define(TYPE_IMP, imp).
 
@@ -325,8 +325,8 @@ replace_game(#game_state{game_type=Type}=Game, NewGame, Games) ->
 create_new_game(GameType) ->
 	#game_state{game_id=generate_id(), game_type=GameType}.
 %% ===
-insert_into_history(inter, Entry, #history{inter=Old}=History) ->
-	History#history{inter=[Entry|Old]};
+insert_into_history(rubber, Entry, #history{rubber=Old}=History) ->
+	History#history{rubber=[Entry|Old]};
 insert_into_history(sport, Entry, #history{sport=Old}=History) ->
 	History#history{sport=[Entry|Old]};
 insert_into_history(imp, Entry, #history{imp=Old}=History) ->
@@ -340,8 +340,8 @@ handle_process_deal(Session, GameType, Contract, Result) ->
 	GameState = get_current_game(GameType, Session#bridge_session.games_states),
 	handle_process_deal(GameState, Contract, Result).
 
-handle_process_deal(#game_state{game_type=inter}=GameState, Contract,#result{taken=Taken}=_Result) ->
-	bs_inter_score:process(Contract, Taken, GameState);
+handle_process_deal(#game_state{game_type=rubber}=GameState, Contract,#result{taken=Taken}=_Result) ->
+	bs_rubber_score:process(Contract, Taken, GameState);
 handle_process_deal(_GameState, _Contract, _Result) ->
 	{error, unknown_game_type}.
 		

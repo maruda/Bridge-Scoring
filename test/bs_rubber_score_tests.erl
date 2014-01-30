@@ -1,8 +1,8 @@
--module(bs_inter_score_tests).
+-module(bs_rubber_score_tests).
 
 %% TODO
-%% - implement: bs_inter_score:create_score_entry_for_bonuses_rubber_won_test
-%% - implement: bs_inter_score:create_score_entry_for_bonuses_extra_points_test
+%% - implement: bs_rubber_score:create_score_entry_for_bonuses_rubber_won_test
+%% - implement: bs_rubber_score:create_score_entry_for_bonuses_extra_points_test
 
 -include_lib("eunit/include/eunit.hrl").
 -include("bs_data.hrl").
@@ -62,17 +62,17 @@ process_simple_test_() ->
     Score9 = Score8#score{above=[[TE1,TE2,TE5,TE6,TE7,TE8],[TE3,TE4],[TE9]],below=[]},    
     Score10 = Score9#score{above=[[TE1,TE2,TE5,TE6,TE7,TE8,TE10],[TE3,TE4],[TE9]],below=[]},    
     Score11 = Score10#score{above=[[TE1,TE2,TE5,TE6,TE7,TE8,TE10,TE11],[TE3,TE4],[TE9]],below=[]},    
-    [?_assertEqual(State1#game_state{score=Score1, round_no=2}, bs_inter_score:process(Contract1, Taken1, State1#game_state{score=Score0, round_no=1})),
-    ?_assertEqual(State1#game_state{score=Score2, round_no=3}, bs_inter_score:process(Contract2, Taken2, State1#game_state{score=Score1, round_no=2})),
-    ?_assertEqual(State1#game_state{score=Score3, round_no=4}, bs_inter_score:process(Contract3, Taken3, State1#game_state{score=Score2, round_no=3})),
-    ?_assertEqual(State2#game_state{score=Score4, round_no=5}, bs_inter_score:process(Contract4, Taken4, State1#game_state{score=Score3, round_no=4})),
-    ?_assertEqual(State2#game_state{score=Score5, round_no=6}, bs_inter_score:process(Contract5, Taken5, State2#game_state{score=Score4, round_no=5})),
-    ?_assertEqual(State2#game_state{score=Score6, round_no=7}, bs_inter_score:process(Contract6, Taken6, State2#game_state{score=Score5, round_no=6})),
-    ?_assertEqual(State2#game_state{score=Score7, round_no=8}, bs_inter_score:process(Contract7, Taken7, State2#game_state{score=Score6, round_no=7})),
-    ?_assertEqual(State2#game_state{score=Score8, round_no=9}, bs_inter_score:process(Contract8, Taken8, State2#game_state{score=Score7, round_no=8})),
-    ?_assertEqual(State3#game_state{score=Score9, round_no=10}, bs_inter_score:process(Contract9, Taken9, State2#game_state{score=Score8, round_no=9})),
-    ?_assertEqual(State3#game_state{score=Score10, round_no=11}, bs_inter_score:process(Contract10, Taken10, State3#game_state{score=Score9, round_no=10})),
-    ?_assertEqual(State3#game_state{score=Score11, round_no=12}, bs_inter_score:process(Contract11, Taken11, State3#game_state{score=Score10, round_no=11}))
+    [?_assertEqual(State1#game_state{score=Score1, round_no=2}, bs_rubber_score:process(Contract1, Taken1, State1#game_state{score=Score0, round_no=1})),
+    ?_assertEqual(State1#game_state{score=Score2, round_no=3}, bs_rubber_score:process(Contract2, Taken2, State1#game_state{score=Score1, round_no=2})),
+    ?_assertEqual(State1#game_state{score=Score3, round_no=4}, bs_rubber_score:process(Contract3, Taken3, State1#game_state{score=Score2, round_no=3})),
+    ?_assertEqual(State2#game_state{score=Score4, round_no=5}, bs_rubber_score:process(Contract4, Taken4, State1#game_state{score=Score3, round_no=4})),
+    ?_assertEqual(State2#game_state{score=Score5, round_no=6}, bs_rubber_score:process(Contract5, Taken5, State2#game_state{score=Score4, round_no=5})),
+    ?_assertEqual(State2#game_state{score=Score6, round_no=7}, bs_rubber_score:process(Contract6, Taken6, State2#game_state{score=Score5, round_no=6})),
+    ?_assertEqual(State2#game_state{score=Score7, round_no=8}, bs_rubber_score:process(Contract7, Taken7, State2#game_state{score=Score6, round_no=7})),
+    ?_assertEqual(State2#game_state{score=Score8, round_no=9}, bs_rubber_score:process(Contract8, Taken8, State2#game_state{score=Score7, round_no=8})),
+    ?_assertEqual(State3#game_state{score=Score9, round_no=10}, bs_rubber_score:process(Contract9, Taken9, State2#game_state{score=Score8, round_no=9})),
+    ?_assertEqual(State3#game_state{score=Score10, round_no=11}, bs_rubber_score:process(Contract10, Taken10, State3#game_state{score=Score9, round_no=10})),
+    ?_assertEqual(State3#game_state{score=Score11, round_no=12}, bs_rubber_score:process(Contract11, Taken11, State3#game_state{score=Score10, round_no=11}))
     ].
 
 process_more_complex_test_() ->
@@ -117,51 +117,51 @@ process_more_complex_test_() ->
     Score7 = Score6#score{above=[[TE1A, TE2, TE3A, TE5A, TE6], [TE1U, TE3U], [TE4, TE5U]], below=[TE7]},    
     Score8 = Score7#score{above=[[TE1A, TE2, TE3A, TE5A, TE6, TE8A], [TE1U, TE3U], [TE4, TE5U], [TE7, TE8U]], below=[], is_closed=true },    
     [
-    ?_assertEqual(State1#game_state{score=Score1, round_no=2}, bs_inter_score:process(Contract1, Taken1, State1#game_state{score=Score0, round_no=1})),
-    ?_assertEqual(State1#game_state{score=Score2, round_no=3}, bs_inter_score:process(Contract2, Taken2, State1#game_state{score=Score1, round_no=2})),
-    ?_assertEqual(State2#game_state{score=Score3, round_no=4}, bs_inter_score:process(Contract3, Taken3, State1#game_state{score=Score2, round_no=3})),
-    ?_assertEqual(State2#game_state{score=Score4, round_no=5}, bs_inter_score:process(Contract4, Taken4, State2#game_state{score=Score3, round_no=4})),
-    ?_assertEqual(State3#game_state{score=Score5, round_no=6}, bs_inter_score:process(Contract5, Taken5, State2#game_state{score=Score4, round_no=5})),
-    ?_assertEqual(State3#game_state{score=Score6, round_no=7}, bs_inter_score:process(Contract6, Taken6, State3#game_state{score=Score5, round_no=6})),
-    ?_assertEqual(State3#game_state{score=Score7, round_no=8}, bs_inter_score:process(Contract7, Taken7, State3#game_state{score=Score6, round_no=7})),
-    ?_assertEqual(State3#game_state{score=Score8, round_no=9}, bs_inter_score:process(Contract8, Taken8, State3#game_state{score=Score7, round_no=8}))
+    ?_assertEqual(State1#game_state{score=Score1, round_no=2}, bs_rubber_score:process(Contract1, Taken1, State1#game_state{score=Score0, round_no=1})),
+    ?_assertEqual(State1#game_state{score=Score2, round_no=3}, bs_rubber_score:process(Contract2, Taken2, State1#game_state{score=Score1, round_no=2})),
+    ?_assertEqual(State2#game_state{score=Score3, round_no=4}, bs_rubber_score:process(Contract3, Taken3, State1#game_state{score=Score2, round_no=3})),
+    ?_assertEqual(State2#game_state{score=Score4, round_no=5}, bs_rubber_score:process(Contract4, Taken4, State2#game_state{score=Score3, round_no=4})),
+    ?_assertEqual(State3#game_state{score=Score5, round_no=6}, bs_rubber_score:process(Contract5, Taken5, State2#game_state{score=Score4, round_no=5})),
+    ?_assertEqual(State3#game_state{score=Score6, round_no=7}, bs_rubber_score:process(Contract6, Taken6, State3#game_state{score=Score5, round_no=6})),
+    ?_assertEqual(State3#game_state{score=Score7, round_no=8}, bs_rubber_score:process(Contract7, Taken7, State3#game_state{score=Score6, round_no=7})),
+    ?_assertEqual(State3#game_state{score=Score8, round_no=9}, bs_rubber_score:process(Contract8, Taken8, State3#game_state{score=Score7, round_no=8}))
     ].
 
 
 %%--------------------------------------------------------------------------------------------
-%% Tests for function 'bs_inter_score:is_contract_made'
+%% Tests for function 'bs_rubber_score:is_contract_made'
 %% test data contains all border cases and few other
 %%--------------------------------------------------------------------------------------------
 is_contract_made_test_() ->
-    [?_assert(bs_inter_score:is_contract_made(#contract{level=1}, 7)),
-    ?_assert(bs_inter_score:is_contract_made(#contract{level=2}, 8)),
-    ?_assert(bs_inter_score:is_contract_made(#contract{level=3}, 9)),
-    ?_assert(bs_inter_score:is_contract_made(#contract{level=4}, 10)),
-    ?_assert(bs_inter_score:is_contract_made(#contract{level=5}, 11)),
-    ?_assert(bs_inter_score:is_contract_made(#contract{level=6}, 12)),
-    ?_assert(bs_inter_score:is_contract_made(#contract{level=7}, 13)),
-    ?_assertNot(bs_inter_score:is_contract_made(#contract{level=1}, 6)),
-    ?_assertNot(bs_inter_score:is_contract_made(#contract{level=2}, 7)),
-    ?_assertNot(bs_inter_score:is_contract_made(#contract{level=3}, 8)),
-    ?_assertNot(bs_inter_score:is_contract_made(#contract{level=4}, 9)),
-    ?_assertNot(bs_inter_score:is_contract_made(#contract{level=5}, 10)),
-    ?_assertNot(bs_inter_score:is_contract_made(#contract{level=6}, 11)),
-    ?_assertNot(bs_inter_score:is_contract_made(#contract{level=7}, 12)),
-    ?_assertNot(bs_inter_score:is_contract_made(#contract{level=4}, 8)),
-    ?_assertNot(bs_inter_score:is_contract_made(#contract{level=5}, 8)),
-    ?_assertNot(bs_inter_score:is_contract_made(#contract{level=6}, 9)),
-    ?_assertNot(bs_inter_score:is_contract_made(#contract{level=5}, 10)),
-    ?_assert(bs_inter_score:is_contract_made(#contract{level=2}, 10)),
-    ?_assert(bs_inter_score:is_contract_made(#contract{level=3}, 10)),
-    ?_assert(bs_inter_score:is_contract_made(#contract{level=3}, 11)),
-    ?_assert(bs_inter_score:is_contract_made(#contract{level=4}, 12)),
-    ?_assert(bs_inter_score:is_contract_made(#contract{level=4}, 11)),
-    ?_assert(bs_inter_score:is_contract_made(#contract{level=5}, 13))
+    [?_assert(bs_rubber_score:is_contract_made(#contract{level=1}, 7)),
+    ?_assert(bs_rubber_score:is_contract_made(#contract{level=2}, 8)),
+    ?_assert(bs_rubber_score:is_contract_made(#contract{level=3}, 9)),
+    ?_assert(bs_rubber_score:is_contract_made(#contract{level=4}, 10)),
+    ?_assert(bs_rubber_score:is_contract_made(#contract{level=5}, 11)),
+    ?_assert(bs_rubber_score:is_contract_made(#contract{level=6}, 12)),
+    ?_assert(bs_rubber_score:is_contract_made(#contract{level=7}, 13)),
+    ?_assertNot(bs_rubber_score:is_contract_made(#contract{level=1}, 6)),
+    ?_assertNot(bs_rubber_score:is_contract_made(#contract{level=2}, 7)),
+    ?_assertNot(bs_rubber_score:is_contract_made(#contract{level=3}, 8)),
+    ?_assertNot(bs_rubber_score:is_contract_made(#contract{level=4}, 9)),
+    ?_assertNot(bs_rubber_score:is_contract_made(#contract{level=5}, 10)),
+    ?_assertNot(bs_rubber_score:is_contract_made(#contract{level=6}, 11)),
+    ?_assertNot(bs_rubber_score:is_contract_made(#contract{level=7}, 12)),
+    ?_assertNot(bs_rubber_score:is_contract_made(#contract{level=4}, 8)),
+    ?_assertNot(bs_rubber_score:is_contract_made(#contract{level=5}, 8)),
+    ?_assertNot(bs_rubber_score:is_contract_made(#contract{level=6}, 9)),
+    ?_assertNot(bs_rubber_score:is_contract_made(#contract{level=5}, 10)),
+    ?_assert(bs_rubber_score:is_contract_made(#contract{level=2}, 10)),
+    ?_assert(bs_rubber_score:is_contract_made(#contract{level=3}, 10)),
+    ?_assert(bs_rubber_score:is_contract_made(#contract{level=3}, 11)),
+    ?_assert(bs_rubber_score:is_contract_made(#contract{level=4}, 12)),
+    ?_assert(bs_rubber_score:is_contract_made(#contract{level=4}, 11)),
+    ?_assert(bs_rubber_score:is_contract_made(#contract{level=5}, 13))
     ].
 
 
 %%--------------------------------------------------------------------------------------------
-%% Tests for function 'bs_inter_score:process_contract_not_made'
+%% Tests for function 'bs_rubber_score:process_contract_not_made'
 %%--------------------------------------------------------------------------------------------
 process_contract_not_made_first_entry_test_() ->
     Contract = #contract{owner='NS', color='H', level=5},
@@ -170,10 +170,10 @@ process_contract_not_made_first_entry_test_() ->
     State1 = State#game_state{is_NS_vulnerable=true},
     State2 = State#game_state{is_WE_vulnerable=true},
     Comment = ?COMMENT__POINTS_FOR_OPPONENTS_UNDERTRICKS,
-    [?_assertEqual(State#game_state{score=#score{above=[[#score_entry{count=1, 'WE'=[{150, Comment}], 'NS'=[]}]], below=[], is_closed=false}}, bs_inter_score:process_contract_not_made(Contract, Taken, State)),
-    ?_assertEqual(State1#game_state{score=#score{above=[[#score_entry{count=1, 'NS'=[], 'WE'=[{300, Comment}]}]], below=[], is_closed=false}}, bs_inter_score:process_contract_not_made(Contract, Taken, State1)),
-    ?_assertEqual(State#game_state{score=#score{above=[[#score_entry{count=1, 'WE'=[], 'NS'=[{150, Comment}]}]], below=[], is_closed=false}}, bs_inter_score:process_contract_not_made(Contract#contract{owner='WE'}, Taken, State)),
-    ?_assertEqual(State2#game_state{score=#score{above=[[#score_entry{count=1, 'WE'=[], 'NS'=[{300, Comment}]}]], below=[], is_closed=false}}, bs_inter_score:process_contract_not_made(Contract#contract{owner='WE'}, Taken, State2))
+    [?_assertEqual(State#game_state{score=#score{above=[[#score_entry{count=1, 'WE'=[{150, Comment}], 'NS'=[]}]], below=[], is_closed=false}}, bs_rubber_score:process_contract_not_made(Contract, Taken, State)),
+    ?_assertEqual(State1#game_state{score=#score{above=[[#score_entry{count=1, 'NS'=[], 'WE'=[{300, Comment}]}]], below=[], is_closed=false}}, bs_rubber_score:process_contract_not_made(Contract, Taken, State1)),
+    ?_assertEqual(State#game_state{score=#score{above=[[#score_entry{count=1, 'WE'=[], 'NS'=[{150, Comment}]}]], below=[], is_closed=false}}, bs_rubber_score:process_contract_not_made(Contract#contract{owner='WE'}, Taken, State)),
+    ?_assertEqual(State2#game_state{score=#score{above=[[#score_entry{count=1, 'WE'=[], 'NS'=[{300, Comment}]}]], below=[], is_closed=false}}, bs_rubber_score:process_contract_not_made(Contract#contract{owner='WE'}, Taken, State2))
     ].
 
 process_contract_not_made_test_() ->
@@ -220,14 +220,14 @@ process_contract_not_made_test_() ->
     Score9 = Score8#score{above=[[TE1,TE2,TE5,TE6,TE7,TE8],[TE3,TE4],[TE9]],below=[]},    
     Score10 = Score9#score{above=[[TE1,TE2,TE5,TE6,TE7,TE8,TE10],[TE3,TE4],[TE9]],below=[]},    
     Score11 = Score10#score{above=[[TE1,TE2,TE5,TE6,TE7,TE8,TE10,TE11],[TE3,TE4],[TE9]],below=[]},    
-    [?_assertEqual(State1#game_state{score=Score1},bs_inter_score:process_contract_not_made(Contract1, Taken1, State1#game_state{score=Score0, round_no=1})),
-    ?_assertEqual(State1#game_state{score=Score2, round_no=2},bs_inter_score:process_contract_not_made(Contract2, Taken2, State1#game_state{score=Score1, round_no=2})),
-    ?_assertEqual(State2#game_state{score=Score5, round_no=5},bs_inter_score:process_contract_not_made(Contract5, Taken5, State2#game_state{score=Score4, round_no=5})),
-    ?_assertEqual(State2#game_state{score=Score6, round_no=6},bs_inter_score:process_contract_not_made(Contract6, Taken6, State2#game_state{score=Score5, round_no=6})),
-    ?_assertEqual(State2#game_state{score=Score7, round_no=7},bs_inter_score:process_contract_not_made(Contract7, Taken7, State2#game_state{score=Score6, round_no=7})),
-    ?_assertEqual(State2#game_state{score=Score8, round_no=8},bs_inter_score:process_contract_not_made(Contract8, Taken8, State2#game_state{score=Score7, round_no=8})),
-    ?_assertEqual(State3#game_state{score=Score10, round_no=10},bs_inter_score:process_contract_not_made(Contract10, Taken10, State3#game_state{score=Score9, round_no=10})),
-    ?_assertEqual(State3#game_state{score=Score11, round_no=11},bs_inter_score:process_contract_not_made(Contract11, Taken11, State3#game_state{score=Score10, round_no=11}))
+    [?_assertEqual(State1#game_state{score=Score1},bs_rubber_score:process_contract_not_made(Contract1, Taken1, State1#game_state{score=Score0, round_no=1})),
+    ?_assertEqual(State1#game_state{score=Score2, round_no=2},bs_rubber_score:process_contract_not_made(Contract2, Taken2, State1#game_state{score=Score1, round_no=2})),
+    ?_assertEqual(State2#game_state{score=Score5, round_no=5},bs_rubber_score:process_contract_not_made(Contract5, Taken5, State2#game_state{score=Score4, round_no=5})),
+    ?_assertEqual(State2#game_state{score=Score6, round_no=6},bs_rubber_score:process_contract_not_made(Contract6, Taken6, State2#game_state{score=Score5, round_no=6})),
+    ?_assertEqual(State2#game_state{score=Score7, round_no=7},bs_rubber_score:process_contract_not_made(Contract7, Taken7, State2#game_state{score=Score6, round_no=7})),
+    ?_assertEqual(State2#game_state{score=Score8, round_no=8},bs_rubber_score:process_contract_not_made(Contract8, Taken8, State2#game_state{score=Score7, round_no=8})),
+    ?_assertEqual(State3#game_state{score=Score10, round_no=10},bs_rubber_score:process_contract_not_made(Contract10, Taken10, State3#game_state{score=Score9, round_no=10})),
+    ?_assertEqual(State3#game_state{score=Score11, round_no=11},bs_rubber_score:process_contract_not_made(Contract11, Taken11, State3#game_state{score=Score10, round_no=11}))
     ].
     
 
@@ -239,28 +239,28 @@ count_belowtricks_scores_1before_test() ->
     Contract = #contract{owner='NS', level=3, doubled=false, redoubled=false},
     Taken = 8,
     State = #game_state{is_NS_vulnerable=false},
-    Points = bs_inter_score:count_undertricks_scores(Contract, Taken, State),
+    Points = bs_rubber_score:count_undertricks_scores(Contract, Taken, State),
     ?_assert(Points =:= 50).
     
 count_belowtricks_scores_5before_test() ->
     Contract = #contract{owner='NS', level=5, doubled=false, redoubled=false},
     Taken = 6,
     State = #game_state{is_NS_vulnerable=false},
-    Points = bs_inter_score:count_undertricks_scores(Contract, Taken, State),
+    Points = bs_rubber_score:count_undertricks_scores(Contract, Taken, State),
     ?_assert(Points =:= 250).
     
 count_belowtricks_scores_2after_test() ->
     Contract = #contract{owner='NS', level=4, doubled=false, redoubled=false},
     Taken = 8,
     State = #game_state{is_NS_vulnerable=true},
-    Points = bs_inter_score:count_undertricks_scores(Contract, Taken, State),
+    Points = bs_rubber_score:count_undertricks_scores(Contract, Taken, State),
     ?_assert(Points =:= 200).
 
 count_belowtricks_scores_6after_test() ->
     Contract = #contract{owner='NS', level=6, doubled=false, redoubled=false},
     Taken = 6,
     State = #game_state{is_NS_vulnerable=true},
-    Points = bs_inter_score:count_undertricks_scores(Contract, Taken, State),
+    Points = bs_rubber_score:count_undertricks_scores(Contract, Taken, State),
     ?_assert(Points =:= 600).
 
 %% --- Doubled -------------------------
@@ -268,28 +268,28 @@ count_belowtricks_scores_3before_dbl_test() ->
     Contract = #contract{owner='NS', level=7, doubled=true, redoubled=false},
     Taken = 10,
     State = #game_state{is_NS_vulnerable=false},
-    Points = bs_inter_score:count_undertricks_scores(Contract, Taken, State),
+    Points = bs_rubber_score:count_undertricks_scores(Contract, Taken, State),
     ?_assert(Points =:= 500).
 
 count_belowtricks_scores_5before_dbl_test() ->
     Contract = #contract{owner='NS', level=6, doubled=true, redoubled=false},
     Taken = 7,
     State = #game_state{is_NS_vulnerable=false},
-    Points = bs_inter_score:count_undertricks_scores(Contract, Taken, State),
+    Points = bs_rubber_score:count_undertricks_scores(Contract, Taken, State),
     ?_assert(Points =:= 1100).
 
 count_belowtricks_scores_1after_dbl_test() ->
     Contract = #contract{owner='NS', level=6, doubled=true, redoubled=false},
     Taken = 11,
     State = #game_state{is_NS_vulnerable=true},
-    Points = bs_inter_score:count_undertricks_scores(Contract, Taken, State),
+    Points = bs_rubber_score:count_undertricks_scores(Contract, Taken, State),
     ?_assert(Points =:= 200).
 
 count_belowtricks_scores_4after_dbl_test() ->
     Contract = #contract{owner='NS', level=5, doubled=true, redoubled=false},
     Taken = 7,
     State = #game_state{is_NS_vulnerable=true},
-    Points = bs_inter_score:count_undertricks_scores(Contract, Taken, State),
+    Points = bs_rubber_score:count_undertricks_scores(Contract, Taken, State),
     ?_assert(Points =:= 1100).
 
 %% --- Redoubled -----------------------
@@ -297,52 +297,52 @@ count_belowtricks_scores_3before_re_test() ->
     Contract = #contract{owner='NS', level=3, doubled=true, redoubled=true},
     Taken = 6,
     State = #game_state{is_NS_vulnerable=false},
-    Points = bs_inter_score:count_undertricks_scores(Contract, Taken, State),
+    Points = bs_rubber_score:count_undertricks_scores(Contract, Taken, State),
     ?_assert(Points =:= 1000).
 
 count_belowtricks_scores_7before_re_test() ->
     Contract = #contract{owner='NS', level=5, doubled=false, redoubled=true},
     Taken = 4,
     State = #game_state{is_NS_vulnerable=false},
-    Points = bs_inter_score:count_undertricks_scores(Contract, Taken, State),
+    Points = bs_rubber_score:count_undertricks_scores(Contract, Taken, State),
     ?_assert(Points =:= 3400).
 
 count_belowtricks_scores_2after_re_test() ->
     Contract = #contract{owner='NS', level=3, doubled=true, redoubled=true},
     Taken = 7,
     State = #game_state{is_NS_vulnerable=true},
-    Points = bs_inter_score:count_undertricks_scores(Contract, Taken, State),
+    Points = bs_rubber_score:count_undertricks_scores(Contract, Taken, State),
     ?_assert(Points =:= 1000).
 
 count_belowtricks_scores_5after_re_test() ->
     Contract = #contract{owner='NS', level=7, doubled=false, redoubled=true},
     Taken = 8,
     State = #game_state{is_NS_vulnerable=true},
-    Points = bs_inter_score:count_undertricks_scores(Contract, Taken, State),
+    Points = bs_rubber_score:count_undertricks_scores(Contract, Taken, State),
     ?_assert(Points =:= 2800).
 
 
 %%---------------------------------------------------------------------------------------------------------------------------
-%% Tests for function 'bs_inter_score:create_score_entry_for_contract_not_made'
+%% Tests for function 'bs_rubber_score:create_score_entry_for_contract_not_made'
 %%---------------------------------------------------------------------------------------------------------------------------
 create_score_entry_for_contract_not_made_test_() ->
-    [?_assert(bs_inter_score:create_score_entry_for_contract_not_made('NS', 200, 1) == #score_entry{count=1, 'NS'=[], 'WE'=[{200, ?COMMENT__POINTS_FOR_OPPONENTS_UNDERTRICKS}]}),
-    ?_assert(bs_inter_score:create_score_entry_for_contract_not_made('NS', 100, 3) == #score_entry{count=3, 'NS'=[], 'WE'=[{100, ?COMMENT__POINTS_FOR_OPPONENTS_UNDERTRICKS}]}),
-    ?_assert(bs_inter_score:create_score_entry_for_contract_not_made('WE', 50, 4) == #score_entry{count=4, 'WE'=[], 'NS'=[{50, ?COMMENT__POINTS_FOR_OPPONENTS_UNDERTRICKS}]}),
-    ?_assert(bs_inter_score:create_score_entry_for_contract_not_made('WE', 150, 8) == #score_entry{count=8, 'WE'=[], 'NS'=[{150, ?COMMENT__POINTS_FOR_OPPONENTS_UNDERTRICKS}]}),
-    ?_assertException(error, function_clause, bs_inter_score:create_score_entry_for_contract_not_made(any, 100, 1))
+    [?_assert(bs_rubber_score:create_score_entry_for_contract_not_made('NS', 200, 1) == #score_entry{count=1, 'NS'=[], 'WE'=[{200, ?COMMENT__POINTS_FOR_OPPONENTS_UNDERTRICKS}]}),
+    ?_assert(bs_rubber_score:create_score_entry_for_contract_not_made('NS', 100, 3) == #score_entry{count=3, 'NS'=[], 'WE'=[{100, ?COMMENT__POINTS_FOR_OPPONENTS_UNDERTRICKS}]}),
+    ?_assert(bs_rubber_score:create_score_entry_for_contract_not_made('WE', 50, 4) == #score_entry{count=4, 'WE'=[], 'NS'=[{50, ?COMMENT__POINTS_FOR_OPPONENTS_UNDERTRICKS}]}),
+    ?_assert(bs_rubber_score:create_score_entry_for_contract_not_made('WE', 150, 8) == #score_entry{count=8, 'WE'=[], 'NS'=[{150, ?COMMENT__POINTS_FOR_OPPONENTS_UNDERTRICKS}]}),
+    ?_assertException(error, function_clause, bs_rubber_score:create_score_entry_for_contract_not_made(any, 100, 1))
     ].
 
 
 %%---------------------------------------------------------------------------------------------------------------------------
-%% Tests for function 'bs_inter_score:create_score_entry_for_contract_made'
+%% Tests for function 'bs_rubber_score:create_score_entry_for_contract_made'
 %%---------------------------------------------------------------------------------------------------------------------------
 create_score_entry_for_contract_made_test_() ->
-    [?_assert(bs_inter_score:create_score_entry_for_contract_made('NS', 200, 1) == #score_entry{count=1, 'WE'=[], 'NS'=[{200, ?COMMENT__POINTS_FOR_CONTRACT_MADE}]}),
-    ?_assert(bs_inter_score:create_score_entry_for_contract_made('NS', 100, 3) == #score_entry{count=3, 'WE'=[], 'NS'=[{100, ?COMMENT__POINTS_FOR_CONTRACT_MADE}]}),
-    ?_assert(bs_inter_score:create_score_entry_for_contract_made('WE', 50, 4) == #score_entry{count=4, 'NS'=[], 'WE'=[{50, ?COMMENT__POINTS_FOR_CONTRACT_MADE}]}),
-    ?_assert(bs_inter_score:create_score_entry_for_contract_made('WE', 150, 8) == #score_entry{count=8, 'NS'=[], 'WE'=[{150, ?COMMENT__POINTS_FOR_CONTRACT_MADE}]}),
-    ?_assertException(error, function_clause, bs_inter_score:create_score_entry_for_contract_made(any, 100, 1))
+    [?_assert(bs_rubber_score:create_score_entry_for_contract_made('NS', 200, 1) == #score_entry{count=1, 'WE'=[], 'NS'=[{200, ?COMMENT__POINTS_FOR_CONTRACT_MADE}]}),
+    ?_assert(bs_rubber_score:create_score_entry_for_contract_made('NS', 100, 3) == #score_entry{count=3, 'WE'=[], 'NS'=[{100, ?COMMENT__POINTS_FOR_CONTRACT_MADE}]}),
+    ?_assert(bs_rubber_score:create_score_entry_for_contract_made('WE', 50, 4) == #score_entry{count=4, 'NS'=[], 'WE'=[{50, ?COMMENT__POINTS_FOR_CONTRACT_MADE}]}),
+    ?_assert(bs_rubber_score:create_score_entry_for_contract_made('WE', 150, 8) == #score_entry{count=8, 'NS'=[], 'WE'=[{150, ?COMMENT__POINTS_FOR_CONTRACT_MADE}]}),
+    ?_assertException(error, function_clause, bs_rubber_score:create_score_entry_for_contract_made(any, 100, 1))
     ].
 
 
@@ -357,24 +357,24 @@ insert_score_entry_test_() ->
     TE5 = TE1#score_entry{count=5},
     TE6 = TE1#score_entry{count=6},
     ETE = #score_entry{count=7, 'NS'=[], 'WE'=[]},
-    [?_assertEqual(#score{below=[TE1]}, bs_inter_score:insert_score_entry(below, #score{below=[]}, TE1)),
-    ?_assertEqual(#score{below=[TE1,TE2,TE3,TE4]} , bs_inter_score:insert_score_entry(below, #score{below=[TE1,TE2,TE3]}, TE4)), 
-    ?_assertEqual(#score{above=[[TE1,TE2,TE3,TE4],[TE6]]}, bs_inter_score:insert_score_entry(above, #score{above=[[TE1,TE2,TE3],[TE6]]}, TE4)), 
-    ?_assertEqual(#score{above=[[TE1,TE2,TE3,TE4]]},  bs_inter_score:insert_score_entry(above, #score{above=[[TE1,TE2,TE3]]}, TE4)), 
-    ?_assertEqual(#score{above=[[TE1,TE2,TE4],[TE3]]}, bs_inter_score:insert_score_entry(above, #score{above=[[TE1,TE2],[TE3]]}, TE4)), 
-    ?_assertEqual(#score{above=[[TE1,TE2,TE5],[TE3]], below=[TE4]}, bs_inter_score:insert_score_entry(above, #score{above=[[TE1,TE2],[TE3]], below=[TE4]}, TE5)),
-    ?_assertException(error, function_clause, bs_inter_score:insert_score_entry(any, #score{}, TE1)),
-    ?_assertEqual(#score{below=[]}, bs_inter_score:insert_score_entry(below, #score{below=[]}, ETE)),
-    ?_assertEqual(#score{above=[]}, bs_inter_score:insert_score_entry(above, #score{above=[]}, ETE)),
-    ?_assertEqual(#score{above=[[TE1,TE2,TE3]]},  bs_inter_score:insert_score_entry(above, #score{above=[[TE1,TE2,TE3]]}, ETE)), 
-    ?_assertEqual(#score{below=[[TE1,TE2,TE3]]},  bs_inter_score:insert_score_entry(below, #score{below=[[TE1,TE2,TE3]]}, ETE)), 
-    ?_assertEqual(#score{above=[[TE1,TE2],[TE3]], below=[TE4]}, bs_inter_score:insert_score_entry(above, #score{above=[[TE1,TE2],[TE3]], below=[TE4]}, ETE)),
-    ?_assertEqual(#score{above=[[TE1,TE2],[TE3]], below=[TE4]}, bs_inter_score:insert_score_entry(below, #score{above=[[TE1,TE2],[TE3]], below=[TE4]}, ETE))
+    [?_assertEqual(#score{below=[TE1]}, bs_rubber_score:insert_score_entry(below, #score{below=[]}, TE1)),
+    ?_assertEqual(#score{below=[TE1,TE2,TE3,TE4]} , bs_rubber_score:insert_score_entry(below, #score{below=[TE1,TE2,TE3]}, TE4)), 
+    ?_assertEqual(#score{above=[[TE1,TE2,TE3,TE4],[TE6]]}, bs_rubber_score:insert_score_entry(above, #score{above=[[TE1,TE2,TE3],[TE6]]}, TE4)), 
+    ?_assertEqual(#score{above=[[TE1,TE2,TE3,TE4]]},  bs_rubber_score:insert_score_entry(above, #score{above=[[TE1,TE2,TE3]]}, TE4)), 
+    ?_assertEqual(#score{above=[[TE1,TE2,TE4],[TE3]]}, bs_rubber_score:insert_score_entry(above, #score{above=[[TE1,TE2],[TE3]]}, TE4)), 
+    ?_assertEqual(#score{above=[[TE1,TE2,TE5],[TE3]], below=[TE4]}, bs_rubber_score:insert_score_entry(above, #score{above=[[TE1,TE2],[TE3]], below=[TE4]}, TE5)),
+    ?_assertException(error, function_clause, bs_rubber_score:insert_score_entry(any, #score{}, TE1)),
+    ?_assertEqual(#score{below=[]}, bs_rubber_score:insert_score_entry(below, #score{below=[]}, ETE)),
+    ?_assertEqual(#score{above=[]}, bs_rubber_score:insert_score_entry(above, #score{above=[]}, ETE)),
+    ?_assertEqual(#score{above=[[TE1,TE2,TE3]]},  bs_rubber_score:insert_score_entry(above, #score{above=[[TE1,TE2,TE3]]}, ETE)), 
+    ?_assertEqual(#score{below=[[TE1,TE2,TE3]]},  bs_rubber_score:insert_score_entry(below, #score{below=[[TE1,TE2,TE3]]}, ETE)), 
+    ?_assertEqual(#score{above=[[TE1,TE2],[TE3]], below=[TE4]}, bs_rubber_score:insert_score_entry(above, #score{above=[[TE1,TE2],[TE3]], below=[TE4]}, ETE)),
+    ?_assertEqual(#score{above=[[TE1,TE2],[TE3]], below=[TE4]}, bs_rubber_score:insert_score_entry(below, #score{above=[[TE1,TE2],[TE3]], below=[TE4]}, ETE))
     ].
 
 
 %%---------------------------------------------------------------------------------------------------------------------------
-%% Tests for bs_inter_score:processing succesful contract 
+%% Tests for bs_rubber_score:processing succesful contract 
 %%---------------------------------------------------------------------------------------------------------------------------
 process_contract_made_test_() ->
     Contract1 = #contract{owner='WE', color='D', level=3},
@@ -410,12 +410,12 @@ process_contract_made_test_() ->
     Score7 = Score5#score{above=[[TE1A, TE3A, TE5A], [TE1U, TE3U], [TE4, TE5U]], below=[TE7]},    
     Score8 = Score7#score{above=[[TE1A, TE3A, TE5A, TE8A], [TE1U, TE3U], [TE4, TE5U], [TE7, TE8U]], below=[], is_closed=true },    
     [
-    ?_assertEqual(State1#game_state{score=Score1, round_no=1}, bs_inter_score:process_contract_made(Contract1, Taken1, State1#game_state{score=Score0, round_no=1}, [])),
-    ?_assertEqual(State2#game_state{score=Score3, round_no=3}, bs_inter_score:process_contract_made(Contract3, Taken3, State1#game_state{score=Score1, round_no=3}, [])),
-    ?_assertEqual(State2#game_state{score=Score4, round_no=4}, bs_inter_score:process_contract_made(Contract4, Taken4, State2#game_state{score=Score3, round_no=4}, [])),
-    ?_assertEqual(State3#game_state{score=Score5, round_no=5}, bs_inter_score:process_contract_made(Contract5, Taken5, State2#game_state{score=Score4, round_no=5}, [])),
-    ?_assertEqual(State3#game_state{score=Score7, round_no=7}, bs_inter_score:process_contract_made(Contract7, Taken7, State3#game_state{score=Score5, round_no=7}, [])),
-    ?_assertEqual(State3#game_state{score=Score8, round_no=8}, bs_inter_score:process_contract_made(Contract8, Taken8, State3#game_state{score=Score7, round_no=8}, []))
+    ?_assertEqual(State1#game_state{score=Score1, round_no=1}, bs_rubber_score:process_contract_made(Contract1, Taken1, State1#game_state{score=Score0, round_no=1}, [])),
+    ?_assertEqual(State2#game_state{score=Score3, round_no=3}, bs_rubber_score:process_contract_made(Contract3, Taken3, State1#game_state{score=Score1, round_no=3}, [])),
+    ?_assertEqual(State2#game_state{score=Score4, round_no=4}, bs_rubber_score:process_contract_made(Contract4, Taken4, State2#game_state{score=Score3, round_no=4}, [])),
+    ?_assertEqual(State3#game_state{score=Score5, round_no=5}, bs_rubber_score:process_contract_made(Contract5, Taken5, State2#game_state{score=Score4, round_no=5}, [])),
+    ?_assertEqual(State3#game_state{score=Score7, round_no=7}, bs_rubber_score:process_contract_made(Contract7, Taken7, State3#game_state{score=Score5, round_no=7}, [])),
+    ?_assertEqual(State3#game_state{score=Score8, round_no=8}, bs_rubber_score:process_contract_made(Contract8, Taken8, State3#game_state{score=Score7, round_no=8}, []))
     ].
 
 
@@ -423,29 +423,29 @@ process_contract_made_test_() ->
 %% Tests for counting scores for contract made
 %%---------------------------------------------------------------------------------------------------------------------------
 count_score_for_contract_test_() ->
-    [?_assertEqual(120, bs_inter_score:count_score_for_contract(#contract{color='C', level=6, doubled=false})),
-    ?_assertEqual(120, bs_inter_score:count_score_for_contract(#contract{color='C', level=3, doubled=true})),
-    ?_assertEqual(100, bs_inter_score:count_score_for_contract(#contract{color='C', level=5})),
-    ?_assertEqual(40, bs_inter_score:count_score_for_contract(#contract{color='C', level=2})),
-    ?_assertEqual(160, bs_inter_score:count_score_for_contract(#contract{color='C', level=2, redoubled=true})),
-    ?_assertEqual(80, bs_inter_score:count_score_for_contract(#contract{color='D', level=4})),
-    ?_assertEqual(160, bs_inter_score:count_score_for_contract(#contract{color='D', level=4, doubled=true})),
-    ?_assertEqual(240, bs_inter_score:count_score_for_contract(#contract{color='D', level=3, redoubled=true})),
-    ?_assertEqual(60, bs_inter_score:count_score_for_contract(#contract{color='H', level=2})),
-    ?_assertEqual(30, bs_inter_score:count_score_for_contract(#contract{color='H', level=1})),
-    ?_assertEqual(60, bs_inter_score:count_score_for_contract(#contract{color='H', level=1, doubled=true})),
-    ?_assertEqual(120, bs_inter_score:count_score_for_contract(#contract{color='H', level=1, redoubled=true})),
-    ?_assertEqual(150, bs_inter_score:count_score_for_contract(#contract{color='H', level=5})),
-    ?_assertEqual(150, bs_inter_score:count_score_for_contract(#contract{color='S', level=5})),
-    ?_assertEqual(300, bs_inter_score:count_score_for_contract(#contract{color='S', level=5, doubled=true})),
-    ?_assertEqual(180, bs_inter_score:count_score_for_contract(#contract{color='S', level=3, doubled=true})),
-    ?_assertEqual(240, bs_inter_score:count_score_for_contract(#contract{color='S', level=2, redoubled=true})),
-    ?_assertEqual(40, bs_inter_score:count_score_for_contract(#contract{color='N', level=1})),
-    ?_assertEqual(70, bs_inter_score:count_score_for_contract(#contract{color='N', level=2})),
-    ?_assertEqual(100, bs_inter_score:count_score_for_contract(#contract{color='N', level=3})),
-    ?_assertEqual(200, bs_inter_score:count_score_for_contract(#contract{color='N', level=3, doubled=true})),
-    ?_assertEqual(140, bs_inter_score:count_score_for_contract(#contract{color='N', level=2, doubled=true})),
-    ?_assertEqual(640, bs_inter_score:count_score_for_contract(#contract{color='N', level=5, doubled=true, redoubled=true}))
+    [?_assertEqual(120, bs_rubber_score:count_score_for_contract(#contract{color='C', level=6, doubled=false})),
+    ?_assertEqual(120, bs_rubber_score:count_score_for_contract(#contract{color='C', level=3, doubled=true})),
+    ?_assertEqual(100, bs_rubber_score:count_score_for_contract(#contract{color='C', level=5})),
+    ?_assertEqual(40, bs_rubber_score:count_score_for_contract(#contract{color='C', level=2})),
+    ?_assertEqual(160, bs_rubber_score:count_score_for_contract(#contract{color='C', level=2, redoubled=true})),
+    ?_assertEqual(80, bs_rubber_score:count_score_for_contract(#contract{color='D', level=4})),
+    ?_assertEqual(160, bs_rubber_score:count_score_for_contract(#contract{color='D', level=4, doubled=true})),
+    ?_assertEqual(240, bs_rubber_score:count_score_for_contract(#contract{color='D', level=3, redoubled=true})),
+    ?_assertEqual(60, bs_rubber_score:count_score_for_contract(#contract{color='H', level=2})),
+    ?_assertEqual(30, bs_rubber_score:count_score_for_contract(#contract{color='H', level=1})),
+    ?_assertEqual(60, bs_rubber_score:count_score_for_contract(#contract{color='H', level=1, doubled=true})),
+    ?_assertEqual(120, bs_rubber_score:count_score_for_contract(#contract{color='H', level=1, redoubled=true})),
+    ?_assertEqual(150, bs_rubber_score:count_score_for_contract(#contract{color='H', level=5})),
+    ?_assertEqual(150, bs_rubber_score:count_score_for_contract(#contract{color='S', level=5})),
+    ?_assertEqual(300, bs_rubber_score:count_score_for_contract(#contract{color='S', level=5, doubled=true})),
+    ?_assertEqual(180, bs_rubber_score:count_score_for_contract(#contract{color='S', level=3, doubled=true})),
+    ?_assertEqual(240, bs_rubber_score:count_score_for_contract(#contract{color='S', level=2, redoubled=true})),
+    ?_assertEqual(40, bs_rubber_score:count_score_for_contract(#contract{color='N', level=1})),
+    ?_assertEqual(70, bs_rubber_score:count_score_for_contract(#contract{color='N', level=2})),
+    ?_assertEqual(100, bs_rubber_score:count_score_for_contract(#contract{color='N', level=3})),
+    ?_assertEqual(200, bs_rubber_score:count_score_for_contract(#contract{color='N', level=3, doubled=true})),
+    ?_assertEqual(140, bs_rubber_score:count_score_for_contract(#contract{color='N', level=2, doubled=true})),
+    ?_assertEqual(640, bs_rubber_score:count_score_for_contract(#contract{color='N', level=5, doubled=true, redoubled=true}))
     ].
 
 
@@ -479,20 +479,20 @@ create_score_entry_for_bonuses_overtricks_and_double_done_test_() ->
     Taken7 = 11,
     SE7 = #score_entry{count=1, 'NS'=[{200, ?COMMENT__OVERTRICKS_POINTS}, {50, ?COMMENT__WON_DOUBLED_GAME}], 'WE'=[]},
     SE72 = #score_entry{count=1, 'NS'=[{400, ?COMMENT__OVERTRICKS_POINTS}, {50, ?COMMENT__WON_DOUBLED_GAME}], 'WE'=[]},
-    [?_assertEqual(SE1, bs_inter_score:create_score_entry_for_bonuses(Contract1, Taken1, State1, [], #score{})),
-    ?_assertEqual(SE2, bs_inter_score:create_score_entry_for_bonuses(Contract2, Taken2, State1, [], #score{})),
-    ?_assertEqual(SE3, bs_inter_score:create_score_entry_for_bonuses(Contract3, Taken3, State1, [], #score{})),
-    ?_assertEqual(SE4, bs_inter_score:create_score_entry_for_bonuses(Contract4, Taken4, State1, [], #score{})),
-    ?_assertEqual(SE5, bs_inter_score:create_score_entry_for_bonuses(Contract5, Taken5, State1, [], #score{})),
-    ?_assertEqual(SE6, bs_inter_score:create_score_entry_for_bonuses(Contract6, Taken6, State1, [], #score{})),
-    ?_assertEqual(SE7, bs_inter_score:create_score_entry_for_bonuses(Contract7, Taken7, State1, [], #score{})),
-    ?_assertEqual(SE1, bs_inter_score:create_score_entry_for_bonuses(Contract1, Taken1, State2, [], #score{})),
-    ?_assertEqual(SE2, bs_inter_score:create_score_entry_for_bonuses(Contract2, Taken2, State2, [], #score{})),
-    ?_assertEqual(SE3, bs_inter_score:create_score_entry_for_bonuses(Contract3, Taken3, State2, [], #score{})),
-    ?_assertEqual(SE42, bs_inter_score:create_score_entry_for_bonuses(Contract4, Taken4, State2, [], #score{})),
-    ?_assertEqual(SE52, bs_inter_score:create_score_entry_for_bonuses(Contract5, Taken5, State2, [], #score{})),
-    ?_assertEqual(SE6, bs_inter_score:create_score_entry_for_bonuses(Contract6, Taken6, State2, [], #score{})),
-    ?_assertEqual(SE72, bs_inter_score:create_score_entry_for_bonuses(Contract7, Taken7, State2, [], #score{}))
+    [?_assertEqual(SE1, bs_rubber_score:create_score_entry_for_bonuses(Contract1, Taken1, State1, [], #score{})),
+    ?_assertEqual(SE2, bs_rubber_score:create_score_entry_for_bonuses(Contract2, Taken2, State1, [], #score{})),
+    ?_assertEqual(SE3, bs_rubber_score:create_score_entry_for_bonuses(Contract3, Taken3, State1, [], #score{})),
+    ?_assertEqual(SE4, bs_rubber_score:create_score_entry_for_bonuses(Contract4, Taken4, State1, [], #score{})),
+    ?_assertEqual(SE5, bs_rubber_score:create_score_entry_for_bonuses(Contract5, Taken5, State1, [], #score{})),
+    ?_assertEqual(SE6, bs_rubber_score:create_score_entry_for_bonuses(Contract6, Taken6, State1, [], #score{})),
+    ?_assertEqual(SE7, bs_rubber_score:create_score_entry_for_bonuses(Contract7, Taken7, State1, [], #score{})),
+    ?_assertEqual(SE1, bs_rubber_score:create_score_entry_for_bonuses(Contract1, Taken1, State2, [], #score{})),
+    ?_assertEqual(SE2, bs_rubber_score:create_score_entry_for_bonuses(Contract2, Taken2, State2, [], #score{})),
+    ?_assertEqual(SE3, bs_rubber_score:create_score_entry_for_bonuses(Contract3, Taken3, State2, [], #score{})),
+    ?_assertEqual(SE42, bs_rubber_score:create_score_entry_for_bonuses(Contract4, Taken4, State2, [], #score{})),
+    ?_assertEqual(SE52, bs_rubber_score:create_score_entry_for_bonuses(Contract5, Taken5, State2, [], #score{})),
+    ?_assertEqual(SE6, bs_rubber_score:create_score_entry_for_bonuses(Contract6, Taken6, State2, [], #score{})),
+    ?_assertEqual(SE72, bs_rubber_score:create_score_entry_for_bonuses(Contract7, Taken7, State2, [], #score{}))
     ].
 
 create_score_entry_for_bonuses_slam_test_() ->
@@ -516,42 +516,42 @@ create_score_entry_for_bonuses_slam_test_() ->
     Score3 = {1000, ?COMMENT__GRAND_SLAM_BONUS},
     Score4 = {1500, ?COMMENT__GRAND_SLAM_BONUS},
     Score5 = {50, ?COMMENT__WON_DOUBLED_GAME},
-    [?_assertEqual(#score_entry{count=1, 'NS'=[Score1], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract1, 12, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[{20, ?COMMENT__OVERTRICKS_POINTS}, Score1], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract1, 13, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[Score3], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract2, 13, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[Score2], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract1, 12, State2, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[{20, ?COMMENT__OVERTRICKS_POINTS}, Score2], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract1, 13, State2, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[Score4], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract2, 13, State2, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[Score1, Score5], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract3, 12, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[{100, ?COMMENT__OVERTRICKS_POINTS}, Score1, Score5], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract3, 13, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[Score3, Score5], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract4, 13, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[Score2, Score5], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract3, 12, State2, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[{200, ?COMMENT__OVERTRICKS_POINTS}, Score2, Score5], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract3, 13, State2, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[Score4, Score5], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract4, 13, State2, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[Score1, Score5], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract5, 12, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[{200, ?COMMENT__OVERTRICKS_POINTS}, Score1, Score5], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract5, 13, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[Score3, Score5], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract6, 13, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[Score2, Score5], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract5, 12, State2, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[{400, ?COMMENT__OVERTRICKS_POINTS}, Score2, Score5], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract5, 13, State2, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'NS'=[Score4, Score5], 'WE'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract6, 13, State2, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[Score1], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract7, 12, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[{30, ?COMMENT__OVERTRICKS_POINTS}, Score1], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract7, 13, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[Score3], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract8, 13, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[Score2], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract7, 12, State3, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[{30, ?COMMENT__OVERTRICKS_POINTS}, Score2], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract7, 13, State3, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[Score4], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract8, 13, State3, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[Score1, Score5], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract9, 12, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[{100, ?COMMENT__OVERTRICKS_POINTS}, Score1, Score5], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract9, 13, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[Score3, Score5], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract10, 13, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[Score2, Score5], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract9, 12, State3, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[{200, ?COMMENT__OVERTRICKS_POINTS}, Score2, Score5], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract9, 13, State3, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[Score4, Score5], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract10, 13, State3, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[Score1, Score5], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract11, 12, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[{200, ?COMMENT__OVERTRICKS_POINTS}, Score1, Score5], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract11, 13, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[Score3, Score5], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract12, 13, State1, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[Score2, Score5], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract11, 12, State3, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[{400, ?COMMENT__OVERTRICKS_POINTS}, Score2, Score5], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract11, 13, State3, [], #score{})),
-    ?_assertEqual(#score_entry{count=1, 'WE'=[Score4, Score5], 'NS'=[]}, bs_inter_score:create_score_entry_for_bonuses(Contract12, 13, State3, [], #score{}))
+    [?_assertEqual(#score_entry{count=1, 'NS'=[Score1], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract1, 12, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[{20, ?COMMENT__OVERTRICKS_POINTS}, Score1], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract1, 13, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[Score3], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract2, 13, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[Score2], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract1, 12, State2, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[{20, ?COMMENT__OVERTRICKS_POINTS}, Score2], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract1, 13, State2, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[Score4], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract2, 13, State2, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[Score1, Score5], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract3, 12, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[{100, ?COMMENT__OVERTRICKS_POINTS}, Score1, Score5], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract3, 13, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[Score3, Score5], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract4, 13, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[Score2, Score5], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract3, 12, State2, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[{200, ?COMMENT__OVERTRICKS_POINTS}, Score2, Score5], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract3, 13, State2, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[Score4, Score5], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract4, 13, State2, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[Score1, Score5], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract5, 12, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[{200, ?COMMENT__OVERTRICKS_POINTS}, Score1, Score5], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract5, 13, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[Score3, Score5], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract6, 13, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[Score2, Score5], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract5, 12, State2, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[{400, ?COMMENT__OVERTRICKS_POINTS}, Score2, Score5], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract5, 13, State2, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'NS'=[Score4, Score5], 'WE'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract6, 13, State2, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[Score1], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract7, 12, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[{30, ?COMMENT__OVERTRICKS_POINTS}, Score1], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract7, 13, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[Score3], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract8, 13, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[Score2], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract7, 12, State3, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[{30, ?COMMENT__OVERTRICKS_POINTS}, Score2], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract7, 13, State3, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[Score4], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract8, 13, State3, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[Score1, Score5], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract9, 12, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[{100, ?COMMENT__OVERTRICKS_POINTS}, Score1, Score5], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract9, 13, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[Score3, Score5], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract10, 13, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[Score2, Score5], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract9, 12, State3, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[{200, ?COMMENT__OVERTRICKS_POINTS}, Score2, Score5], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract9, 13, State3, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[Score4, Score5], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract10, 13, State3, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[Score1, Score5], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract11, 12, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[{200, ?COMMENT__OVERTRICKS_POINTS}, Score1, Score5], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract11, 13, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[Score3, Score5], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract12, 13, State1, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[Score2, Score5], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract11, 12, State3, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[{400, ?COMMENT__OVERTRICKS_POINTS}, Score2, Score5], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract11, 13, State3, [], #score{})),
+    ?_assertEqual(#score_entry{count=1, 'WE'=[Score4, Score5], 'NS'=[]}, bs_rubber_score:create_score_entry_for_bonuses(Contract12, 13, State3, [], #score{}))
     ].
     
 create_score_entry_for_bonuses_rubber_won_test_() ->
@@ -580,37 +580,37 @@ is_game_won_test_() ->
     TE12 = #score_entry{'WE'=[{150, ?COMMENT__POINTS_FOR_CONTRACT_MADE}], 'NS'=[]},
     TE13 = #score_entry{'WE'=[{300, ?COMMENT__POINTS_FOR_CONTRACT_MADE}], 'NS'=[]},
     TE14 = #score_entry{'WE'=[{100, ?COMMENT__POINTS_FOR_CONTRACT_MADE}], 'NS'=[]},
-    [?_assertNot(bs_inter_score:is_game_won(#score{below=[]})), 
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE1]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE2]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE3]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE1, TE1]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE1, TE2]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE1, TE1, TE1]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE4]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE5]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE6]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE4, TE4]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE4, TE5]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE4, TE4, TE4]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE1, TE5]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE2, TE4]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE3, TE6]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE1, TE1, TE5, TE4]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE1, TE2, TE4, TE4]})),
-    ?_assertNot(bs_inter_score:is_game_won(#score{below=[TE1, TE1, TE1, TE6]})),
-    ?_assert(bs_inter_score:is_game_won(#score{below=[TE7]})),
-    ?_assert(bs_inter_score:is_game_won(#score{below=[TE8]})),
-    ?_assert(bs_inter_score:is_game_won(#score{below=[TE9]})),
-    ?_assert(bs_inter_score:is_game_won(#score{below=[TE10]})),
-    ?_assert(bs_inter_score:is_game_won(#score{below=[TE11]})),
-    ?_assert(bs_inter_score:is_game_won(#score{below=[TE12]})),
-    ?_assert(bs_inter_score:is_game_won(#score{below=[TE13]})),
-    ?_assert(bs_inter_score:is_game_won(#score{below=[TE14]})),
-    ?_assert(bs_inter_score:is_game_won(#score{below=[TE5, TE4, TE10]})),
-    ?_assert(bs_inter_score:is_game_won(#score{below=[TE6, TE4]})),
-    ?_assert(bs_inter_score:is_game_won(#score{below=[TE6, TE3, TE4]})),
-    ?_assert(bs_inter_score:is_game_won(#score{below=[TE3, TE6, TE8]}))
+    [?_assertNot(bs_rubber_score:is_game_won(#score{below=[]})), 
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE1]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE2]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE3]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE1, TE1]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE1, TE2]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE1, TE1, TE1]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE4]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE5]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE6]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE4, TE4]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE4, TE5]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE4, TE4, TE4]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE1, TE5]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE2, TE4]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE3, TE6]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE1, TE1, TE5, TE4]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE1, TE2, TE4, TE4]})),
+    ?_assertNot(bs_rubber_score:is_game_won(#score{below=[TE1, TE1, TE1, TE6]})),
+    ?_assert(bs_rubber_score:is_game_won(#score{below=[TE7]})),
+    ?_assert(bs_rubber_score:is_game_won(#score{below=[TE8]})),
+    ?_assert(bs_rubber_score:is_game_won(#score{below=[TE9]})),
+    ?_assert(bs_rubber_score:is_game_won(#score{below=[TE10]})),
+    ?_assert(bs_rubber_score:is_game_won(#score{below=[TE11]})),
+    ?_assert(bs_rubber_score:is_game_won(#score{below=[TE12]})),
+    ?_assert(bs_rubber_score:is_game_won(#score{below=[TE13]})),
+    ?_assert(bs_rubber_score:is_game_won(#score{below=[TE14]})),
+    ?_assert(bs_rubber_score:is_game_won(#score{below=[TE5, TE4, TE10]})),
+    ?_assert(bs_rubber_score:is_game_won(#score{below=[TE6, TE4]})),
+    ?_assert(bs_rubber_score:is_game_won(#score{below=[TE6, TE3, TE4]})),
+    ?_assert(bs_rubber_score:is_game_won(#score{below=[TE3, TE6, TE8]}))
     ].
 
 
@@ -651,13 +651,13 @@ close_game_test_() ->
     ExpScore7 = #score{above=[[],[TE1U]], below=[], is_closed=false},
     State7 = #game_state{score=Score7, is_NS_vulnerable=false, is_WE_vulnerable=false},
     ExpState7 = #game_state{score=ExpScore7, is_NS_vulnerable=false, is_WE_vulnerable=true},
-    [?_assertEqual(ExpState1, bs_inter_score:close_game(Score1, State1)),
-    ?_assertEqual(ExpState2, bs_inter_score:close_game(Score2, State2)),
-    ?_assertEqual(ExpState3, bs_inter_score:close_game(Score3, State3)),
-    ?_assertEqual(ExpState4, bs_inter_score:close_game(Score4, State4)),
-    ?_assertEqual(ExpState5, bs_inter_score:close_game(Score5, State5)),
-    ?_assertEqual(ExpState6, bs_inter_score:close_game(Score6, State6)),
-    ?_assertEqual(ExpState7, bs_inter_score:close_game(Score7, State7))
+    [?_assertEqual(ExpState1, bs_rubber_score:close_game(Score1, State1)),
+    ?_assertEqual(ExpState2, bs_rubber_score:close_game(Score2, State2)),
+    ?_assertEqual(ExpState3, bs_rubber_score:close_game(Score3, State3)),
+    ?_assertEqual(ExpState4, bs_rubber_score:close_game(Score4, State4)),
+    ?_assertEqual(ExpState5, bs_rubber_score:close_game(Score5, State5)),
+    ?_assertEqual(ExpState6, bs_rubber_score:close_game(Score6, State6)),
+    ?_assertEqual(ExpState7, bs_rubber_score:close_game(Score7, State7))
     ].
 
 
@@ -665,9 +665,9 @@ close_game_test_() ->
 %% Test for moving scores from below to above
 %%---------------------------------------------------------------------------------------------------------------------------
 move_points_from_below_to_above_test_() ->
-    [?_assertEqual(#score{above=[[bonuses],[points_from_below]], below=[]}, bs_inter_score:move_points_from_below_to_above(#score{above=[[bonuses]], below=[points_from_below]})),
-    ?_assertEqual(#score{above=[[bonuses],[points_from_first_game],[points_from_last_game]], below=[]}, bs_inter_score:move_points_from_below_to_above(#score{above=[[bonuses],[points_from_first_game]], below=[points_from_last_game]})),
-    ?_assertEqual(#score{above=[[],[points_from_below]], below=[]}, bs_inter_score:move_points_from_below_to_above(#score{above=[[]], below=[points_from_below]}))
+    [?_assertEqual(#score{above=[[bonuses],[points_from_below]], below=[]}, bs_rubber_score:move_points_from_below_to_above(#score{above=[[bonuses]], below=[points_from_below]})),
+    ?_assertEqual(#score{above=[[bonuses],[points_from_first_game],[points_from_last_game]], below=[]}, bs_rubber_score:move_points_from_below_to_above(#score{above=[[bonuses],[points_from_first_game]], below=[points_from_last_game]})),
+    ?_assertEqual(#score{above=[[],[points_from_below]], below=[]}, bs_rubber_score:move_points_from_below_to_above(#score{above=[[]], below=[points_from_below]}))
     ].
 
 
@@ -687,18 +687,18 @@ who_won_game_test_() ->
     TE12 = #score_entry{'WE'=[{150, ?COMMENT__POINTS_FOR_CONTRACT_MADE}], 'NS'=[]},
     TE13 = #score_entry{'WE'=[{300, ?COMMENT__POINTS_FOR_CONTRACT_MADE}], 'NS'=[]},
     TE14 = #score_entry{'WE'=[{100, ?COMMENT__POINTS_FOR_CONTRACT_MADE}], 'NS'=[]},
-    [?_assertEqual('NS', bs_inter_score:who_won_game(#score{below=[TE7]})),
-    ?_assertEqual('NS', bs_inter_score:who_won_game(#score{below=[TE8]})),
-    ?_assertEqual('NS', bs_inter_score:who_won_game(#score{below=[TE9]})),
-    ?_assertEqual('NS', bs_inter_score:who_won_game(#score{below=[TE10]})),
-    ?_assertEqual('WE', bs_inter_score:who_won_game(#score{below=[TE11]})),
-    ?_assertEqual('WE', bs_inter_score:who_won_game(#score{below=[TE12]})),
-    ?_assertEqual('WE', bs_inter_score:who_won_game(#score{below=[TE13]})),
-    ?_assertEqual('WE', bs_inter_score:who_won_game(#score{below=[TE14]})),
-    ?_assertEqual('NS', bs_inter_score:who_won_game(#score{below=[TE5, TE4, TE10]})),
-    ?_assertEqual('WE', bs_inter_score:who_won_game(#score{below=[TE6, TE4]})),
-    ?_assertEqual('WE', bs_inter_score:who_won_game(#score{below=[TE6, TE3, TE4]})),
-    ?_assertEqual('NS', bs_inter_score:who_won_game(#score{below=[TE3, TE6, TE8]}))
+    [?_assertEqual('NS', bs_rubber_score:who_won_game(#score{below=[TE7]})),
+    ?_assertEqual('NS', bs_rubber_score:who_won_game(#score{below=[TE8]})),
+    ?_assertEqual('NS', bs_rubber_score:who_won_game(#score{below=[TE9]})),
+    ?_assertEqual('NS', bs_rubber_score:who_won_game(#score{below=[TE10]})),
+    ?_assertEqual('WE', bs_rubber_score:who_won_game(#score{below=[TE11]})),
+    ?_assertEqual('WE', bs_rubber_score:who_won_game(#score{below=[TE12]})),
+    ?_assertEqual('WE', bs_rubber_score:who_won_game(#score{below=[TE13]})),
+    ?_assertEqual('WE', bs_rubber_score:who_won_game(#score{below=[TE14]})),
+    ?_assertEqual('NS', bs_rubber_score:who_won_game(#score{below=[TE5, TE4, TE10]})),
+    ?_assertEqual('WE', bs_rubber_score:who_won_game(#score{below=[TE6, TE4]})),
+    ?_assertEqual('WE', bs_rubber_score:who_won_game(#score{below=[TE6, TE3, TE4]})),
+    ?_assertEqual('NS', bs_rubber_score:who_won_game(#score{below=[TE3, TE6, TE8]}))
     ].
 
 

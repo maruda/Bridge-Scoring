@@ -1,7 +1,6 @@
--module(bs_inter_score).
+-module(bs_rubber_score).
 
 %% TODO 
-%% -Change naming from 'inter' or 'international' to 'rubber'
 %% -Clean the code
 
 -include("bs_data.hrl").

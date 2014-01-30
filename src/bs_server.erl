@@ -76,8 +76,10 @@ new_session() ->
 %%-------------------------------------------------------------
 -spec get_session(SessionId::atom()) -> Session::#bridge_session{}.
 
-get_session(SessionId) ->
-	gen_server:call(?SERVER, {get_session, SessionId}).
+get_session(SessionId) when is_atom(SessionId) ->
+	gen_server:call(?SERVER, {get_session, SessionId});
+get_session(_) ->
+    error(badarg).
 
 %%-------------------------------------------------------------
 %% new_game
@@ -85,7 +87,7 @@ get_session(SessionId) ->
 -spec new_game(SessionId::atom(), GameType::atom()) -> Session::#bridge_session{}.
 
 new_game(SessionId, GameType) ->
-    log("Starting new game -> API invoked"),
+    %log("Starting new game -> API invoked"),
     gen_server:call(?SERVER, {new_game, SessionId, GameType}).
 
 %%-------------------------------------------------------------
@@ -238,9 +240,10 @@ create_session(State) ->
 	Id = generate_id(),
 	create_session(Id, State).
 
-create_session(Id, _State) ->
+create_session(Id, _State) when is_atom(Id) ->
 	Players = create_players(),
-	#bridge_session{id=Id, players=Players}.
+    Games = [{T, create_new_game(T)} || T <- [rubber, sport, imp]],
+	#bridge_session{id=Id, games_states=Games, players=Players}.
 
 %% ===
 generate_id() ->
@@ -294,11 +297,17 @@ save_session(#bridge_session{id=Id}=Session, #state{sessions=Sessions}=State) ->
 handle_new_game(GameType, #bridge_session{games_states=GamesStates, players=Players, history=History}=Session) ->
     log("Starting new game -> handler method"),
 	% move current game to history
-	CurrentGame = get_current_game(GameType, GamesStates),
+    CurrentGame = lists:foldl(fun({T, GS}, AccIn) -> case T of 
+                    GameType -> GS;
+                    _ -> AccIn  
+                end end, {error, unknown_game_type, GameType}, GamesStates), 
 	HistoryEntry = {CurrentGame, Players},
 	NewHistory = insert_into_history(GameType, HistoryEntry, History),
 	% create new game
-	NewGamesStates = replace_game(CurrentGame, create_new_game(GameType), GamesStates),
+    NewGamesStates = lists:map(fun({T, GS}) -> case T of 
+                    GameType -> {T, create_new_game(T)};
+                    _ -> {T, GS}
+                end end, GamesStates),
 	Session#bridge_session{games_states=NewGamesStates, history=NewHistory}.
 	
 %% ===

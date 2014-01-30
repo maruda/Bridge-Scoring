@@ -116,6 +116,7 @@ process_more_complex_test_() ->
     Score6 = Score5#score{above=[[TE1A, TE2, TE3A, TE5A, TE6], [TE1U, TE3U], [TE4, TE5U]]},    
     Score7 = Score6#score{above=[[TE1A, TE2, TE3A, TE5A, TE6], [TE1U, TE3U], [TE4, TE5U]], below=[TE7]},    
     Score8 = Score7#score{above=[[TE1A, TE2, TE3A, TE5A, TE6, TE8A], [TE1U, TE3U], [TE4, TE5U], [TE7, TE8U]], below=[], is_closed=true },    
+    Summary = #summary{winner='WE', ns_score=740, we_score=1740},
     [
     ?_assertEqual(State1#game_state{score=Score1, round_no=2}, bs_rubber_score:process(Contract1, Taken1, State1#game_state{score=Score0, round_no=1})),
     ?_assertEqual(State1#game_state{score=Score2, round_no=3}, bs_rubber_score:process(Contract2, Taken2, State1#game_state{score=Score1, round_no=2})),
@@ -124,7 +125,7 @@ process_more_complex_test_() ->
     ?_assertEqual(State3#game_state{score=Score5, round_no=6}, bs_rubber_score:process(Contract5, Taken5, State2#game_state{score=Score4, round_no=5})),
     ?_assertEqual(State3#game_state{score=Score6, round_no=7}, bs_rubber_score:process(Contract6, Taken6, State3#game_state{score=Score5, round_no=6})),
     ?_assertEqual(State3#game_state{score=Score7, round_no=8}, bs_rubber_score:process(Contract7, Taken7, State3#game_state{score=Score6, round_no=7})),
-    ?_assertEqual(State3#game_state{score=Score8, round_no=9}, bs_rubber_score:process(Contract8, Taken8, State3#game_state{score=Score7, round_no=8}))
+    ?_assertEqual(State3#game_state{score=Score8, round_no=9, status=Summary}, bs_rubber_score:process(Contract8, Taken8, State3#game_state{score=Score7, round_no=8}))
     ].
 
 
@@ -409,13 +410,14 @@ process_contract_made_test_() ->
     Score5 = Score4#score{above=[[TE1A, TE3A, TE5A], [TE1U, TE3U], [TE4, TE5U]],below=[]},    
     Score7 = Score5#score{above=[[TE1A, TE3A, TE5A], [TE1U, TE3U], [TE4, TE5U]], below=[TE7]},    
     Score8 = Score7#score{above=[[TE1A, TE3A, TE5A, TE8A], [TE1U, TE3U], [TE4, TE5U], [TE7, TE8U]], below=[], is_closed=true },    
+    Summary = #summary{winner='WE', ns_score=740, we_score=1290},
     [
     ?_assertEqual(State1#game_state{score=Score1, round_no=1}, bs_rubber_score:process_contract_made(Contract1, Taken1, State1#game_state{score=Score0, round_no=1}, [])),
     ?_assertEqual(State2#game_state{score=Score3, round_no=3}, bs_rubber_score:process_contract_made(Contract3, Taken3, State1#game_state{score=Score1, round_no=3}, [])),
     ?_assertEqual(State2#game_state{score=Score4, round_no=4}, bs_rubber_score:process_contract_made(Contract4, Taken4, State2#game_state{score=Score3, round_no=4}, [])),
     ?_assertEqual(State3#game_state{score=Score5, round_no=5}, bs_rubber_score:process_contract_made(Contract5, Taken5, State2#game_state{score=Score4, round_no=5}, [])),
     ?_assertEqual(State3#game_state{score=Score7, round_no=7}, bs_rubber_score:process_contract_made(Contract7, Taken7, State3#game_state{score=Score5, round_no=7}, [])),
-    ?_assertEqual(State3#game_state{score=Score8, round_no=8}, bs_rubber_score:process_contract_made(Contract8, Taken8, State3#game_state{score=Score7, round_no=8}, []))
+    ?_assertEqual(State3#game_state{score=Score8, round_no=8, status=Summary}, bs_rubber_score:process_contract_made(Contract8, Taken8, State3#game_state{score=Score7, round_no=8}, []))
     ].
 
 
@@ -626,38 +628,38 @@ close_game_test_() ->
     Score1 = #score{above=[[TE1A]], below=[TE1U]},
     ExpScore1 = #score{above=[[TE1A],[TE1U]], below=[], is_closed=false},
     State1 = #game_state{score=Score1, is_NS_vulnerable=false, is_WE_vulnerable=false},
-    ExpState1 = #game_state{score=ExpScore1, is_NS_vulnerable=false, is_WE_vulnerable=true},
+    ExpState1 = #game_state{score=ExpScore1, is_NS_vulnerable=false, is_WE_vulnerable=true, status=unfinished},
     Score2 = #score{above=[[TE2A]], below=[TE2U]},
     ExpScore2 = #score{above=[[TE2A],[TE2U]], below=[], is_closed=false},
     State2 = #game_state{score=Score2, is_NS_vulnerable=false, is_WE_vulnerable=false},
-    ExpState2 = #game_state{score=ExpScore2, is_NS_vulnerable=true, is_WE_vulnerable=false},
+    ExpState2 = #game_state{score=ExpScore2, is_NS_vulnerable=true, is_WE_vulnerable=false, status=unfinished},
     Score3 = #score{above=[[TE6, TE1A]], below=[TE1U]},
     ExpScore3 = #score{above=[[TE6, TE1A],[TE1U]], below=[], is_closed=false},
     State3 = #game_state{score=Score3, is_NS_vulnerable=true, is_WE_vulnerable=false},
-    ExpState3 = #game_state{score=ExpScore3, is_NS_vulnerable=true, is_WE_vulnerable=true},
+    ExpState3 = #game_state{score=ExpScore3, is_NS_vulnerable=true, is_WE_vulnerable=true, status=unfinished},
     Score4 = #score{above=[[TE6, TE2A]], below=[TE2U]},
     ExpScore4 = #score{above=[[TE6, TE2A],[TE2U]], below=[], is_closed=false},
     State4 = #game_state{score=Score4, is_NS_vulnerable=false, is_WE_vulnerable=true},
-    ExpState4 = #game_state{score=ExpScore4, is_NS_vulnerable=true, is_WE_vulnerable=true},
+    ExpState4 = #game_state{score=ExpScore4, is_NS_vulnerable=true, is_WE_vulnerable=true, status=unfinished},
     Score5 = #score{above=[[TE6, TE1A]], below=[TE1U]},
     ExpScore5 = #score{above=[[TE6, TE1A],[TE1U]], below=[], is_closed=true},
     State5 = #game_state{score=Score5, is_NS_vulnerable=true, is_WE_vulnerable=true},
-    ExpState5 = #game_state{score=ExpScore5, is_NS_vulnerable=true, is_WE_vulnerable=true},
+    ExpState5 = #game_state{score=ExpScore5, is_NS_vulnerable=true, is_WE_vulnerable=true, status=#summary{winner='WE', we_score=600, ns_score=0}},
     Score6 = #score{above=[[TE6, TE2A]], below=[TE2U]},
     ExpScore6 = #score{above=[[TE6, TE2A],[TE2U]], below=[], is_closed=true},
     State6 = #game_state{score=Score6, is_NS_vulnerable=true, is_WE_vulnerable=true},
-    ExpState6 = #game_state{score=ExpScore6, is_NS_vulnerable=true, is_WE_vulnerable=true},
+    ExpState6 = #game_state{score=ExpScore6, is_NS_vulnerable=true, is_WE_vulnerable=true, status=#summary{winner='NS', we_score=400, ns_score=710}},
     Score7 = #score{above=[[]], below=[TE1U]},
     ExpScore7 = #score{above=[[],[TE1U]], below=[], is_closed=false},
     State7 = #game_state{score=Score7, is_NS_vulnerable=false, is_WE_vulnerable=false},
-    ExpState7 = #game_state{score=ExpScore7, is_NS_vulnerable=false, is_WE_vulnerable=true},
-    [?_assertEqual(ExpState1, bs_rubber_score:close_game(Score1, State1)),
-    ?_assertEqual(ExpState2, bs_rubber_score:close_game(Score2, State2)),
-    ?_assertEqual(ExpState3, bs_rubber_score:close_game(Score3, State3)),
-    ?_assertEqual(ExpState4, bs_rubber_score:close_game(Score4, State4)),
-    ?_assertEqual(ExpState5, bs_rubber_score:close_game(Score5, State5)),
-    ?_assertEqual(ExpState6, bs_rubber_score:close_game(Score6, State6)),
-    ?_assertEqual(ExpState7, bs_rubber_score:close_game(Score7, State7))
+    ExpState7 = #game_state{score=ExpScore7, is_NS_vulnerable=false, is_WE_vulnerable=true, status=unfinished},
+    [?_assertEqual(ExpState1, bs_rubber_score:close_game(State1)),
+    ?_assertEqual(ExpState2, bs_rubber_score:close_game(State2)),
+    ?_assertEqual(ExpState3, bs_rubber_score:close_game(State3)),
+    ?_assertEqual(ExpState4, bs_rubber_score:close_game(State4)),
+    ?_assertEqual(ExpState5, bs_rubber_score:close_game(State5)),
+    ?_assertEqual(ExpState6, bs_rubber_score:close_game(State6)),
+    ?_assertEqual(ExpState7, bs_rubber_score:close_game(State7))
     ].
 
 

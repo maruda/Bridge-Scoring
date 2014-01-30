@@ -124,9 +124,10 @@ process_contract_made(Contract, Taken, #game_state{score=PrevScore}=State, Extra
     Temp1Score = insert_score_entry(below, PrevScore, ScoreEntryForContract),
     ScoreEntryForBonuses= create_score_entry_for_bonuses(Contract, Taken, State, ExtraPoints, Temp1Score), % count overtakes, bonuses for small and grand slam
     Temp2Score = insert_score_entry(above, Temp1Score, ScoreEntryForBonuses),
-    _NewState = case is_game_won(Temp2Score) of
-        false -> State#game_state{score=Temp2Score};
-        true -> close_game(Temp2Score, State) % move score from below to above, check if rubber is done
+    NewState = State#game_state{score=Temp2Score},
+    case is_game_won(Temp2Score) of
+        false -> NewState;
+        true -> close_game(NewState) % move score from below to above, check if rubber is done
     end.
         
 count_scores_entry_for_contract(#contract{owner=Owner}=Contract, #game_state{round_no=RoundNo}=_State) ->
@@ -252,17 +253,19 @@ count_rubber_won_bonus(TempScore, true, OpponentVulnerable) ->
 %% Function checking if one game in rubber is finished
 %%---------------------------------------------------------------------------------------------------------------------------
 is_game_won(#score{below=Points}) ->
-    {_, Sum} = sum_points(Points),
-    Sum >= 100.
+    {{'NS', AccNS}, {'WE', AccWE}} = sum_points(Points),
+    case {AccNS >= 100, AccWE >= 100} of
+        {true, _}   -> true;
+        {_, true}   -> true;
+        _           -> false
+    end.
 
+%% ========
 sum_points(Points) ->
     sum_points(Points, 0, 0).
 
 sum_points([], AccNS, AccWE) ->
-    case AccNS > AccWE of
-        true -> {'NS', AccNS};
-        false -> {'WE', AccWE}
-    end;
+    {{'NS', AccNS}, {'WE', AccWE}};
 sum_points([#score_entry{'NS'=[], 'WE'=Points}| T], AccNS, AccWE) ->
     NewAccWE = AccWE + sum_one_entry(Points),
     sum_points(T, AccNS, NewAccWE);
@@ -281,12 +284,15 @@ sum_one_entry([{Points, _}|T], Acc) ->
 %%---------------------------------------------------------------------------------------------------------------------------
 %% Function moves points from below line to above, sets vulnerability and if rubbed is done marks scoring as closed
 %%---------------------------------------------------------------------------------------------------------------------------
-close_game(Score, State) ->
-    NewScore = move_points_from_below_to_above(Score),
-    Winner = who_won_game(Score),
+close_game(State) ->
+    Winner = who_won_game(State#game_state.score),
+    NewScore = move_points_from_below_to_above(State#game_state.score),
     RetState = case is_rubber_done(Winner, State) of
-        false -> State#game_state{score=NewScore}; 
-        true -> State#game_state{score=NewScore#score{is_closed=true}} 
+        false -> 
+            State#game_state{score=NewScore}; 
+        true ->
+            Summary = create_summary(NewScore),
+            State#game_state{score=NewScore#score{is_closed=true}, status=Summary} 
     end,
     set_vulnerable(Winner, RetState).
 
@@ -304,6 +310,31 @@ is_rubber_done(Winner, #game_state{is_NS_vulnerable=NSVulnerable, is_WE_vulnerab
 %%---------------------------------------------------------------------------------------------------------------------------
 %% Function checking who won the game
 %%---------------------------------------------------------------------------------------------------------------------------
-who_won_game(#score{below=Under}) ->
-    {Winner, _Points} = sum_points(Under),
-    Winner.
+who_won_game(#score{below=Below}) ->
+    {{'NS', Ns}, {'WE', We}} = sum_points(Below),
+    %% draw at this stage is not possible because in each deal only one team can score
+    case Ns >= We of
+        true -> 'NS';
+        false -> 'WE'
+    end.
+
+%%---------------------------------------------------------------------------------------------------------------------------
+%% Function checking who won the rubber
+%%---------------------------------------------------------------------------------------------------------------------------
+create_summary(#score{above=Above, below=[]}) ->
+    create_summary(Above, #summary{}).
+
+create_summary([], Summary) -> 
+    set_winner_of_rubber(Summary);
+create_summary([H|T], #summary{we_score=We, ns_score=Ns}=Summary) ->
+    {{'NS', NsSum},{'WE', WeSum}} = sum_points(H),
+    create_summary(T, Summary#summary{we_score=We+WeSum, ns_score=Ns+NsSum}).
+
+%% =========
+set_winner_of_rubber(#summary{we_score=S, ns_score=S}=Summary) ->
+    Summary#summary{winner=draw};
+set_winner_of_rubber(#summary{we_score=We, ns_score=Ns}=Summary) ->
+    case Ns > We of
+        true -> Summary#summary{winner='NS'};
+        false -> Summary#summary{winner='WE'}
+    end.

@@ -67,11 +67,11 @@
 %%---------------------------------------------------------------------
 %% Data Type: summary   (used when game is finished)
 %% where:
-%%  winner:     'WE' | 'NS'
+%%  winner:     'WE' | 'NS' | draw
 %%  we_score:   integer()
 %%  ns_score:   integer()
 %%---------------------------------------------------------------------
--record(summary, {winner, we_score, ns_score}).
+-record(summary, {winner, we_score=0, ns_score=0}).
 
 %%---------------------------------------------------------------------
 %% Data Type: game_state

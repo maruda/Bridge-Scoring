@@ -27,6 +27,7 @@
 -define(TYPE_INTERNATIONAL, rubber).
 -define(TYPE_SPORT, sport).
 -define(TYPE_IMP, imp).
+-define(KNOWN_GAME_TYPES, [rubber, sport, imp]).
 
 %%-------------------------------------------------------------------------------------------------------------------------
 %%-------------------------------------------------------------
@@ -74,21 +75,32 @@ new_session() ->
 %%-------------------------------------------------------------
 %% get_session
 %%-------------------------------------------------------------
--spec get_session(SessionId::atom()) -> Session::#bridge_session{}.
+-spec get_session(SessionId::atom()) -> Session::#bridge_session{} | {badarg, non_atom_id}.
 
 get_session(SessionId) when is_atom(SessionId) ->
 	gen_server:call(?SERVER, {get_session, SessionId});
 get_session(_) ->
-    error(badarg).
+    {badarg, non_atom_id}.
 
 %%-------------------------------------------------------------
 %% new_game
 %%-------------------------------------------------------------
--spec new_game(SessionId::atom(), GameType::atom()) -> Session::#bridge_session{}.
+-spec new_game(SessionId::atom(), GameType::atom()) -> Session::#bridge_session{} |
+                                                        {badarg, non_atom_id} | 
+                                                        {badarg, non_atom_game_type} | 
+                                                        {badarg, unknown_game_type} | 
+                                                        {badarg, unknown_session}.
 
+new_game(SessionId, _GameType) when not is_atom(SessionId) ->
+    {badarg, non_atom_id};
+new_game(_SessionId, GameType) when not is_atom(GameType) ->
+    {badarg, non_atom_game_type};
 new_game(SessionId, GameType) ->
     %log("Starting new game -> API invoked"),
-    gen_server:call(?SERVER, {new_game, SessionId, GameType}).
+    case lists:member(GameType, ?KNOWN_GAME_TYPES) of
+        false -> {badarg, unknown_game_type};
+        true -> gen_server:call(?SERVER, {new_game, SessionId, GameType})
+    end.
 
 %%-------------------------------------------------------------
 %% process_deal
@@ -123,7 +135,7 @@ remove_deal(SessionId, GameId, RoundNo) ->
 %% set_player_name
 %%		position: nort | south | west | east
 %%-------------------------------------------------------------
--spec set_player_name(SessionId::atom(), Position::atom(), NewName::string()) -> Player::#player{}. 
+-spec set_player_name(SessionId::atom(), Position::atom(), NewName::string()) -> Players::[#player{}]. 
 
 set_player_name(SessionId, Position, NewName) ->
 	gen_server:call(?SERVER, {set_player_name, SessionId, Position, NewName}).
@@ -151,23 +163,30 @@ init(_Args) ->
 %%-------------------------------------------------------------
 handle_call({new_session}, _From, State)->
 	log("Handling call for new session. Current state is ~p", [State]),
-	Session = create_session(State),
+	Session = create_session(),
 	log("Session created"),
 	NewState = save_session(Session, State), 
 	log("State updated. New state is ~p", [NewState]),
 	{reply, Session, NewState};
 
 handle_call({get_session, SessionId}, _From, State) ->
-	Session = get_session(SessionId, State),
+	Session = case get_session(SessionId, State) of
+        {badarg, unknown_session} -> create_session(SessionId);
+        ASession -> ASession
+    end,
 	NewState = save_session(Session, State),
 	{reply, Session, NewState}; 
 
 handle_call({new_game, SessionId, GameType}, _From, State)->
     log("Starting new game -> gen_server callback"),
-    Session = get_session(SessionId, State),
-    NewSession = handle_new_game(GameType, Session),
-    NewState = save_session(NewSession, State),
-    {reply, NewSession, NewState};
+    case get_session(SessionId, State) of
+        {badarg, unknown_session}=Reply -> 
+            {reply, Reply, State};
+        Session ->
+            NewSession = handle_new_game(GameType, Session),
+            NewState = save_session(NewSession, State),
+            {reply, NewSession, NewState}
+    end;
 
 handle_call({process_deal, SessionId, GameType, Contract, Result}, _From, State)->
     Session = get_session(SessionId, State),
@@ -236,11 +255,11 @@ code_change(_OldVsn, State, _Extra) ->
 %% ==========================
 %% create_session
 %% ==========================
-create_session(State) ->
+create_session() ->
 	Id = generate_id(),
-	create_session(Id, State).
+	create_session(Id).
 
-create_session(Id, _State) when is_atom(Id) ->
+create_session(Id) when is_atom(Id) ->
 	Players = create_players(),
     Games = [{T, create_new_game(T)} || T <- [rubber, sport, imp]],
 	#bridge_session{id=Id, games_states=Games, players=Players}.
@@ -260,12 +279,12 @@ create_players() ->
 %%---------------------------
 %%  get_session from db (temporarly from state)
 %%---------------------------
-get_session(SessionId, #state{sessions=Sessions}=State) ->
-    Session = case find_session(SessionId, Sessions) of
-		{error, no_session} -> create_session(SessionId, State);
-		ASession -> ASession
-	end,
-	Session.
+get_session(SessionId, #state{sessions=Sessions}) ->
+    lists:foldl(fun(X, Acc) -> case X#bridge_session.id of
+                        SessionId -> X;
+                        _ -> Acc
+                    end 
+                end, {badarg, unknown_session}, Sessions).
 
 %% ====
 find_session(SessionId, [#bridge_session{id=SessionId}=Session|_T]) ->
@@ -326,10 +345,6 @@ set_current_game(#game_state{game_type=Type}=Game, [{Type, _Prev}|T], NewStates)
 set_current_game(Game, [H|T], NewStates) ->
     set_current_game(Game, T, [H|NewStates]).
 
-%% ===
-replace_game(#game_state{game_type=Type}=Game, NewGame, Games) ->
-	Filtered = lists:filter(fun({_, X}) -> X == Game end, Games),
-	[{Type, NewGame}|Filtered].
 %% ===
 create_new_game(GameType) ->
 	#game_state{game_id=generate_id(), game_type=GameType}.

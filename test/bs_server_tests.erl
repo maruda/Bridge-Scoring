@@ -317,18 +317,56 @@ is_properly_initiated(#score_entry{count=Count, 'WE'=We, 'NS'=Ns}) ->
     ].
 
 ng_impacts_only_given_game_type(_) ->
+    S1 = bs_server:get_session(test),
+    S2 = bs_server:new_game(test, rubber),
+    S3 = bs_server:new_game(test, sport),
+    S4 = bs_server:new_game(test, imp),
     [
+        % history check
+        ?_assertEqual(S1#bridge_session.history#history.sport, S2#bridge_session.history#history.sport),
+        ?_assertEqual(S1#bridge_session.history#history.imp, S2#bridge_session.history#history.imp),
+        ?_assertEqual(S2#bridge_session.history#history.rubber, S3#bridge_session.history#history.rubber),
+        ?_assertEqual(S2#bridge_session.history#history.imp, S3#bridge_session.history#history.imp),
+        ?_assertEqual(S3#bridge_session.history#history.rubber, S4#bridge_session.history#history.rubber),
+        ?_assertEqual(S3#bridge_session.history#history.sport, S4#bridge_session.history#history.sport),
+        ?_assertNotEqual(S1#bridge_session.history#history.rubber, S2#bridge_session.history#history.rubber),
+        ?_assertNotEqual(S2#bridge_session.history#history.sport, S3#bridge_session.history#history.sport),
+        ?_assertNotEqual(S3#bridge_session.history#history.imp, S4#bridge_session.history#history.imp),
+        % current games check
+        generate_current_game_check_tests(S1#bridge_session.games_states, S2#bridge_session.games_states, rubber),
+        generate_current_game_check_tests(S2#bridge_session.games_states, S3#bridge_session.games_states, sport),
+        generate_current_game_check_tests(S3#bridge_session.games_states, S4#bridge_session.games_states, imp)
     ].
 
+merge_games_of_same_type(L1, L2) ->
+    Match = fun(X) -> 
+            [{_, M}] = lists:filter(fun({_, Y}) -> Y#game_state.game_type == X#game_state.game_type end, L2),
+            M
+    end,
+    [{X, Match(X)} || {_, X} <- L1].
+
+generate_current_game_check_tests(L1, L2, Type) ->
+    lists:map(fun({X, Y}) -> 
+                case X#game_state.game_type of
+                    Type -> ?_assertNotEqual(X,Y);
+                    _ -> ?_assertEqual(X, Y)
+                end
+        end, merge_games_of_same_type(L1, L2)).
+
 ng_do_create_empty_game_state_just_as_in_new_session(_) ->
+    % TODO
     [
     ].
 
 ng_do_puts_new_game_in_sessions_current_games(_) ->
-    [
-    ].
+    S1 = bs_server:get_session(test),
+    _S2 = bs_server:new_game(test, rubber),
+    _S3 = bs_server:new_game(test, sport),
+    S4 = bs_server:new_game(test, imp),
+    [ ?_assertNotEqual(X,Y) || {X,Y} <- merge_games_of_same_type(S1#bridge_session.games_states, S4#bridge_session.games_states)].
 
 ng_do_moves_prev_game_to_history(_) ->
+% TODO
     [
     ].
 
@@ -564,5 +602,10 @@ sp_are_all_positions_covered_after_invocation(_) ->
         are_all_positions_covered(Players6),
         are_all_positions_covered(Players7)
     ].
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%% =================   Utility functions   ============== %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

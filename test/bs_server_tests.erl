@@ -37,7 +37,7 @@ get_session_test_() ->
     [
         {"Get session should return session with given atom id",
             ?SETUP(fun gs_do_session_has_given_id/1)},
-        {"Get session should throw exception if given non-atom id",
+        {"Get session should return error if given non-atom id",
             ?SETUP(fun gs_are_only_atom_ids_accepted/1)},
         {"Get session should return proper session",
             ?SETUP(fun gs_is_returning_proper_session/1)}
@@ -57,9 +57,9 @@ new_game_test_() ->
             ?SETUP(fun ng_do_puts_new_game_in_sessions_current_games/1)},
         {"Invoking new game should move previous game to history",
             ?SETUP(fun ng_do_moves_prev_game_to_history/1)},
-        {"New game should throw exception if given non-atom session id",
+        {"New game should return error if given non-atom session id",
             ?SETUP(fun ng_are_only_atom_session_ids_accepted/1)},
-        {"New game should throw exception if given non-atom game type",
+        {"New game should return error if given non-atom game type",
             ?SETUP(fun ng_are_only_atom_game_types_accepted/1)},
         {"New game should accept only game types that are one of [rubber, sport, imp]",
             ?SETUP(fun ng_are_only_known_game_types_accepted/1)},
@@ -68,6 +68,18 @@ new_game_test_() ->
     ].
 process_deal_test_() ->
     [
+        {"Should return error if given non-atom session id",
+            ?SETUP(fun pd_are_only_atom_session_ids_accepted/1)},
+        {"Should return error if given non-atom game type",
+            ?SETUP(fun pd_are_only_atom_game_types_accepted/1)},
+        {"Should accept only game types that are one of [rubber, sport, imp]",
+            ?SETUP(fun pd_are_only_known_game_types_accepted/1)},
+        {"Should return error on unknown session id",
+            ?SETUP(fun pd_is_error_thrown_on_unknown_session_id/1)},
+        {"Should return error on invalid contract",
+            ?SETUP(fun pd_is_error_returned_on_invalid_contract/1)},
+        {"Should return error on invalid result",
+            ?SETUP(fun pd_is_error_returned_on_invalid_result/1)},
         {"Should affect only game of given type",
             ?SETUP(fun pd_impacts_only_given_game_type/1)},
         {"Should increment round counter",
@@ -76,13 +88,9 @@ process_deal_test_() ->
             ?SETUP(fun pd_creates_new_game_after_finishing_one/1)},
         {"Should move closed game to history if created new one",
             ?SETUP(fun pd_moves_closed_game_to_history/1)}
-        % Should throw error on non atom session id
-    % should throw error on unknown session id
-    % should accept only game types that are one of [rubber, sport, imp]
-        % Should throw error on non atom game id
     ].
 
-remove_game_test_() ->
+remove_game_test_disabled() ->
     [
         {"Should remove only game wih given id",
             ?SETUP(fun rg_removes_only_game_with_given_id/1)},
@@ -95,31 +103,44 @@ remove_game_test_() ->
         % Should throw error on non atom session id
         % Should throw error on non atom game id
     % should throw error on unknown session id
-    % should accept only game types that are one of [rubber, sport, imp]
     ].
 
-remove_deal_test_() ->
+remove_deal_test_disabled() ->
     [
+        {"Should return error on non atom session id",
+            ?SETUP(fun rd_returns_error_on_non_atom_id/1)},
+        {"Should return error on unknown session id",
+            ?SETUP(fun rd_returns_error_on_unknown_session_id/1)},
+        {"Should not return error on known session id",
+            ?SETUP(fun rd_does_not_return_error_on_known_session_id/1)},
+        {"Should return error on unknown game",
+            ?SETUP(fun rd_should_return_error_on_unknown_game_id/1)},
+        {"Should not return unknown_game_error_for_known_game",
+            ?SETUP(fun rd_does_not_return_unknown_game_error_for_known_game/1)},
         {"Only last deal may be removed",
             ?SETUP(fun rd_removes_last_deal/1)},
         {"Deal may be remover only from current game",
             ?SETUP(fun rd_removes_deal_only_from_current_game/1)},
+        {"Games in history are unknown for this function",
+            ?SETUP(fun rd_takes_games_in_history_as_unknown/1)},
         {"Should decrement round counter",
             ?SETUP(fun rd_decrements_round_counter/1)},
         {"Sould reset vulnerability if needed",
             ?SETUP(fun rd_keeps_vulnerability_consistent/1)}
-        % Should throw error on non atom session id
-    % should throw error on unknown session id
-        % Should throw error on non atom game id
-    % should accept only game types that are one of [rubber, sport, imp]
     ].
 
 set_player_name_test_() ->
     [
-        % Should throw error on non atom session id
-    % should throw error on unknown session id
-        % Should accept only valid positions
-    % should accept olny positions that are one of [north, south, east, west]
+        {"Should return error on non atom session id",
+            ?SETUP(fun spn_returns_error_on_non_atom_id/1)},
+        {"Should return error on unknown session id",
+            ?SETUP(fun spn_returns_error_on_unknown_session_id/1)},
+        {"Should not return error on known session id",
+            ?SETUP(fun spn_does_not_return_error_on_known_session_id/1)},
+        {"Should accept only valid positions",
+            ?SETUP(fun spn_accepts_only_valid_positions/1)},
+        {"Should accept only string and atom names",
+            ?SETUP(fun spn_accepts_only_string_and_atom_names/1)},
         {"Should change players name",
             ?SETUP(fun spn_changes_player_name/1)},
         {"Should affect only player with given position",
@@ -130,10 +151,16 @@ set_player_name_test_() ->
 
 switch_players_test_() ->
     [
-        % Should throw error on non atom session id
-    % should throw error on unknown session id
-        % Should accept only valid positions
-    % should accept olny positions that are one of [north, south, east, west]
+        {"Should return error on non atom session id",
+            ?SETUP(fun sp_returns_error_on_non_atom_id/1)},
+        {"Should return error on unknown session id",
+            ?SETUP(fun sp_returns_error_on_unknown_session_id/1)},
+        {"Should not return error on known session id",
+            ?SETUP(fun sp_does_not_return_error_on_known_session_id/1)},
+        {"Should accept only valid positions",
+            ?SETUP(fun sp_accepts_only_valid_positions/1)},
+        {"Shound not make chnges when the same positions are passed as params",
+            ?SETUP(fun sp_does_not_change_anything_on_switching_same_positions/1)},
         {"Should affect only positions of two players",
             ?SETUP(fun sp_affects_only_positions_of_two_players/1)},
         {"After invokation all positions should be covered",
@@ -419,6 +446,53 @@ ng_is_error_thrown_on_unknown_session_id(_) ->
 %% ============================================================================================================
 %%  Tests for function process_deal
 %% ============================================================================================================
+pd_are_only_atom_session_ids_accepted(_) ->
+    [
+        ?_assertEqual({badarg, non_atom_id}, bs_server:process_deal("string", rubber, #contract{}, #result{})),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:process_deal(<<"binary_string">>, rubber, #contract{}, #result{})),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:process_deal(1234, rubber, #contract{}, #result{})),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:process_deal(self(), rubber, #contract{}, #result{})),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:process_deal([list, 'of', atoms], rubber, #contract{}, #result{})),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:process_deal({tuple, 'of', 4, "terms"}, rubber, #contract{}, #result{}))
+    ].
+
+pd_are_only_atom_game_types_accepted(_) ->
+    bs_server:get_session(id),
+    [
+        ?_assertEqual({badarg, non_atom_game_type}, bs_server:process_deal(id, "string", #contract{}, #result{})),
+        ?_assertEqual({badarg, non_atom_game_type}, bs_server:process_deal(id, <<"binary string">>, #contract{}, #result{})),
+        ?_assertEqual({badarg, non_atom_game_type}, bs_server:process_deal(id, 1234, #contract{}, #result{})),
+        ?_assertEqual({badarg, non_atom_game_type}, bs_server:process_deal(id, self(), #contract{}, #result{})),
+        ?_assertEqual({badarg, non_atom_game_type}, bs_server:process_deal(id, [list, "of", 4, terms], #contract{}, #result{})),
+        ?_assertEqual({badarg, non_atom_game_type}, bs_server:process_deal(id, {"tuple of", something}, #contract{}, #result{})),
+        % check valid values
+        ?_assertNotEqual({badarg, non_atom_game_type}, bs_server:process_deal(id, rubber, #contract{}, #result{})),
+        ?_assertNotEqual({badarg, non_atom_game_type}, bs_server:process_deal(id, sport, #contract{}, #result{})),
+        ?_assertNotEqual({badarg, non_atom_game_type}, bs_server:process_deal(id, imp, #contract{}, #result{}))
+    ].
+
+pd_are_only_known_game_types_accepted(_) ->
+    [
+        ?_assertEqual({badarg, unknown_game_type}, bs_server:new_game(test, unknown)),
+        ?_assertEqual({badarg, unknown_game_type}, bs_server:new_game(test, undefined)),
+        ?_assertEqual({badarg, unknown_game_type}, bs_server:new_game(test, any_atom)),
+        ?_assertNotEqual({badarg, unknown_game_type}, bs_server:new_game(test, rubber)),
+        ?_assertNotEqual({badarg, unknown_game_type}, bs_server:new_game(test, sport)),
+        ?_assertNotEqual({badarg, unknown_game_type}, bs_server:new_game(test, imp))
+    ].
+
+pd_is_error_thrown_on_unknown_session_id(_) ->
+    [
+    ].
+
+pd_is_error_returned_on_invalid_contract(_) ->
+    [
+    ].
+
+pd_is_error_returned_on_invalid_result(_) ->
+    [
+    ].
+
 pd_impacts_only_given_game_type(_) ->
     [
     ].
@@ -457,6 +531,62 @@ rg_removes_games_from_history_with_players_mapping(_) ->
 %% ============================================================================================================
 %%  Tests for function remove_deal
 %% ============================================================================================================
+rd_returns_error_on_non_atom_id(_) ->
+    [
+        ?_assertEqual({badarg, non_atom_id}, bs_server:remove_deal("string", game_id)), 
+        ?_assertEqual({badarg, non_atom_id}, bs_server:remove_deal(<<"binary_string">>, game_id)), 
+        ?_assertEqual({badarg, non_atom_id}, bs_server:remove_deal(1234, game_id)), 
+        ?_assertEqual({badarg, non_atom_id}, bs_server:remove_deal(self(), game_id)), 
+        ?_assertEqual({badarg, non_atom_id}, bs_server:remove_deal(["list", 'of', 4, <<"things">>], game_id)), 
+        ?_assertEqual({badarg, non_atom_id}, bs_server:remove_deal({tuple, "of", 3},  game_id)), 
+        ?_assertEqual({badarg, non_atom_id}, bs_server:remove_deal(session_id, "string")), 
+        ?_assertEqual({badarg, non_atom_id}, bs_server:remove_deal(session_id, <<"binary_string">>)),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:remove_deal(session_id, 1234)),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:remove_deal(session_id, self())),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:remove_deal(session_id, ["list", 'of', 4, <<"things">>])),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:remove_deal(session_id, {tuple, "of", 3}))
+    ].
+
+rd_returns_error_on_unknown_session_id(_) ->
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% bs_server is started once for all tests           %%
+    %% using the same session id as used in other tests  %%
+    %% may make this test faling as id is                %%
+    %% in fact already known, so beware :)               %%
+    %% (other tests uses session ids: 'id' and 'test'    %%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    [
+        ?_assertEqual({badarg, unknown_session}, bs_server:remove_deal(rd_session_id, game_id)),
+        ?_assertEqual({badarg, unknown_session}, bs_server:remove_deal(rd_test_id, game_id)),
+        ?_assertEqual({badarg, unknown_session}, bs_server:remove_deal(rd_undefined, game_id)),
+        ?_assertEqual({badarg, unknown_session}, bs_server:remove_deal(rd_unknown, game_id))
+    ].
+
+rd_should_return_error_on_unknown_game_id(_) ->
+    bs_server:get_session(test),
+    [
+        ?_assertEqual({badarg, unknown_game}, bs_server:remove_deal(test, unknown_game_id))
+    ].
+
+rd_does_not_return_unknown_game_error_for_known_game(_) ->
+    S = bs_server:get_session(test),
+    GIds = [ X#game_state.game_id || {_, X} <- S#bridge_session.games_states ],
+    [
+        [ ?_assertNotEqual({badarg, unknown_game_id}, bs_server:remove_deal(test, Gid)) || Gid <- GIds ]
+    ].
+
+rd_does_not_return_error_on_known_session_id(_) ->
+    bs_server:get_session(id), % <- it is known right now
+    bs_server:get_session(test), % <- it is known right now
+    bs_server:get_session(undefined), % <- it is known right now
+    bs_server:get_session(unknown), % <- it is known right now
+    [
+        ?_assertNotEqual({badarg, unknown_session}, bs_server:remove_deal(id, id)),
+        ?_assertNotEqual({badarg, unknown_session}, bs_server:remove_deal(test, id)),
+        ?_assertNotEqual({badarg, unknown_session}, bs_server:remove_deal(undefined, id)),
+        ?_assertNotEqual({badarg, unknown_session}, bs_server:remove_deal(unknown, id))
+    ].
+
 rd_removes_last_deal(_) ->
     [
     ].
@@ -465,8 +595,43 @@ rd_removes_deal_only_from_current_game(_) ->
     [
     ].
 
-rd_decrements_round_counter(_) ->
+rd_takes_games_in_history_as_unknown(_) ->
+    bs_server:get_session(test),
+    bs_server:new_game(test, rubber),
+    bs_server:new_game(test, rubber),
+    bs_server:new_game(test, sport),
+    bs_server:new_game(test, imp),
+    S = bs_server:new_game(test, imp),
+    GIds1 = [ X#game_state.game_id || {X, _} <- S#bridge_session.history#history.rubber ],
+    GIds2 = [ X#game_state.game_id || {X, _} <- S#bridge_session.history#history.sport ],
+    GIds3 = [ X#game_state.game_id || {X, _} <- S#bridge_session.history#history.imp ],
     [
+        [ ?_assertEqual({badarg, unknown_game_id}, bs_server:remove_deal(test, Gid)) || Gid <- GIds1 ],
+        [ ?_assertEqual({badarg, unknown_game_id}, bs_server:remove_deal(test, Gid)) || Gid <- GIds2 ],
+        [ ?_assertEqual({badarg, unknown_game_id}, bs_server:remove_deal(test, Gid)) || Gid <- GIds3 ]
+    ].
+
+
+rd_decrements_round_counter(_) ->
+    bs_server:get_session(test),
+    GS1 = bs_server:process_deal(test, rubber, #contract{}, #result{}),
+    GS2 = bs_server:process_deal(test, rubber, #contract{}, #result{}),
+    GS3 = bs_server:process_deal(test, rubber, #contract{}, #result{}),
+    GS4 = bs_server:process_deal(test, rubber, #contract{}, #result{}),
+    GS5 = bs_server:process_deal(test, rubber, #contract{}, #result{}),
+    R1 = bs_server:remove_deal(test, GS1#game_state.game_id),
+    R2 = bs_server:remove_deal(test, GS1#game_state.game_id),
+    R3 = bs_server:remove_deal(test, GS1#game_state.game_id),
+    R4 = bs_server:remove_deal(test, GS1#game_state.game_id),
+    [
+        ?_assertEqual(R1#game_state.round_no, GS5#game_state.round_no - 1),
+        ?_assertEqual(R2#game_state.round_no, R1#game_state.round_no - 1),
+        ?_assertEqual(R3#game_state.round_no, R2#game_state.round_no - 1),
+        ?_assertEqual(R4#game_state.round_no, R3#game_state.round_no - 1),
+        ?_assertEqual(R1#game_state.round_no, GS4#game_state.round_no),
+        ?_assertEqual(R2#game_state.round_no, GS3#game_state.round_no),
+        ?_assertEqual(R3#game_state.round_no, GS2#game_state.round_no),
+        ?_assertEqual(R4#game_state.round_no, GS1#game_state.round_no)
     ].
 
 rd_keeps_vulnerability_consistent(_) ->
@@ -476,6 +641,68 @@ rd_keeps_vulnerability_consistent(_) ->
 %% ============================================================================================================
 %%  Tests for function set_player_name
 %% ============================================================================================================
+
+spn_returns_error_on_non_atom_id(_) ->
+    [
+        ?_assertEqual({badarg, non_atom_id}, bs_server:set_player_name("string", north, south)),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:set_player_name(<<"binary_string">>, north, south)),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:set_player_name(1234, north, south)),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:set_player_name(self(), north, south)),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:set_player_name(["list", 'of', 4, <<"things">>], north, south)),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:set_player_name({tuple, "of", 3}, north, south))
+    ].
+
+spn_returns_error_on_unknown_session_id(_) ->
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% bs_server is started once for all tests           %%
+    %% using the same session id as used in other tests  %%
+    %% may make this test faling as id is                %%
+    %% in fact already known, so beware :)               %%
+    %% (other tests uses session ids: 'id' and 'test'    %%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    [
+        ?_assertEqual({badarg, unknown_session}, bs_server:set_player_name(spn_session_id, north, south)),
+        ?_assertEqual({badarg, unknown_session}, bs_server:set_player_name(spn_test_id, east, south)),
+        ?_assertEqual({badarg, unknown_session}, bs_server:set_player_name(spn_undefined, east, west)),
+        ?_assertEqual({badarg, unknown_session}, bs_server:set_player_name(spn_unknown, east, north))
+    ].
+
+spn_does_not_return_error_on_known_session_id(_) ->
+    bs_server:get_session(id), % <- it is known right now
+    bs_server:get_session(test), % <- it is known right now
+    bs_server:get_session(undefined), % <- it is known right now
+    bs_server:get_session(unknown), % <- it is known right now
+    [
+        ?_assertNotEqual({badarg, unknown_session}, bs_server:set_player_name(id, north, south)),
+        ?_assertNotEqual({badarg, unknown_session}, bs_server:set_player_name(test, east, south)),
+        ?_assertNotEqual({badarg, unknown_session}, bs_server:set_player_name(undefined, east, west)),
+        ?_assertNotEqual({badarg, unknown_session}, bs_server:set_player_name(unknown, east, north))
+    ].
+
+spn_accepts_only_valid_positions(_) ->
+    [
+        ?_assertEqual({badarg, invalid_position}, bs_server:set_player_name(id, test, atom)),
+        ?_assertEqual({badarg, invalid_position}, bs_server:set_player_name(id, "bad", "types")),
+        ?_assertEqual({badarg, invalid_position}, bs_server:set_player_name(id, <<"bin">>, atom)),
+        ?_assertEqual({badarg, invalid_position}, bs_server:set_player_name(id, test, "Name")),
+        ?_assertEqual({badarg, invalid_position}, bs_server:set_player_name(id, self(), atom)),
+        ?_assertEqual({badarg, invalid_position}, bs_server:set_player_name(id, test, [list, "of", 3])),
+        ?_assertEqual({badarg, invalid_position}, bs_server:set_player_name(id, {"tuple", 'of', 4, <<"terms">>}, atom)),
+        ?_assertEqual({badarg, invalid_position}, bs_server:set_player_name(id, "north", "south")),
+        ?_assertEqual({badarg, invalid_position}, bs_server:set_player_name(id, "west", "east"))
+    ].
+
+spn_accepts_only_string_and_atom_names(_) ->
+    [
+        ?_assertEqual({badarg, invalid_name}, bs_server:set_player_name(id, north, 1234)),
+        ?_assertEqual({badarg, invalid_name}, bs_server:set_player_name(id, south, self())),
+        ?_assertEqual({badarg, invalid_name}, bs_server:set_player_name(id, west, {tuple, "of", <<"terms">>})),
+        ?_assertNotEqual({badarg, invalid_name}, bs_server:set_player_name(id, north, "Name")),
+        ?_assertNotEqual({badarg, invalid_name}, bs_server:set_player_name(id, north, name)),
+        ?_assertNotEqual({badarg, invalid_name}, bs_server:set_player_name(id, north, 'Name')),
+        ?_assertNotEqual({badarg, invalid_name}, bs_server:set_player_name(id, north, [68,72,84,92]))
+    ].
+
 spn_changes_player_name(_) ->
     S1 = bs_server:get_session(test),
     Players1 = S1#bridge_session.players,
@@ -543,6 +770,70 @@ has_the_same_order(L1, L2) ->
 %% ============================================================================================================
 %%  Tests for function switch_players
 %% ============================================================================================================
+
+sp_returns_error_on_non_atom_id(_) ->
+    [
+        ?_assertEqual({badarg, non_atom_id}, bs_server:switch_players("string", north, south)),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:switch_players(<<"binary_string">>, north, south)),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:switch_players(1234, north, south)),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:switch_players(self(), north, south)),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:switch_players(["list", 'of', 4, <<"things">>], north, south)),
+        ?_assertEqual({badarg, non_atom_id}, bs_server:switch_players({tuple, "of", 3}, north, south))
+    ].
+
+sp_returns_error_on_unknown_session_id(_) ->
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% bs_server is started once for all tests           %%
+    %% using the same session id as used in other tests  %%
+    %% may make this test faling as id is                %%
+    %% in fact already known, so beware :)               %%
+    %% (other tests uses session ids: 'id' and 'test'    %%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    [
+        ?_assertEqual({badarg, unknown_session}, bs_server:switch_players(sp_session_id, north, south)),
+        ?_assertEqual({badarg, unknown_session}, bs_server:switch_players(sp_test_id, east, south)),
+        ?_assertEqual({badarg, unknown_session}, bs_server:switch_players(sp_undefined, east, west)),
+        ?_assertEqual({badarg, unknown_session}, bs_server:switch_players(sp_unknown, east, north))
+    ].
+
+sp_does_not_return_error_on_known_session_id(_) ->
+    bs_server:get_session(id),
+    bs_server:get_session(test),
+    bs_server:get_session(undefined),
+    bs_server:get_session(unknown), % <- it is known right now
+    [
+        ?_assertNotEqual({badarg, unknown_session}, bs_server:switch_players(id, north, south)),
+        ?_assertNotEqual({badarg, unknown_session}, bs_server:switch_players(test, east, south)),
+        ?_assertNotEqual({badarg, unknown_session}, bs_server:switch_players(undefined, east, west)),
+        ?_assertNotEqual({badarg, unknown_session}, bs_server:switch_players(unknown, east, north))
+    ].
+
+sp_accepts_only_valid_positions(_) ->
+    [
+        ?_assertEqual({badarg, invalid_position}, bs_server:switch_players(id, test, atom)),
+        ?_assertEqual({badarg, invalid_position}, bs_server:switch_players(id, "bad", "types")),
+        ?_assertEqual({badarg, invalid_position}, bs_server:switch_players(id, <<"bin">>, atom)),
+        ?_assertEqual({badarg, invalid_position}, bs_server:switch_players(id, test, 1234)),
+        ?_assertEqual({badarg, invalid_position}, bs_server:switch_players(id, self(), atom)),
+        ?_assertEqual({badarg, invalid_position}, bs_server:switch_players(id, test, [list, "of", 3])),
+        ?_assertEqual({badarg, invalid_position}, bs_server:switch_players(id, {"tuple", 'of', 4, <<"terms">>}, atom)),
+        ?_assertEqual({badarg, invalid_position}, bs_server:switch_players(id, "north", "south")),
+        ?_assertEqual({badarg, invalid_position}, bs_server:switch_players(id, "west", "east"))
+    ].
+% switching same positions should not change anything
+sp_does_not_change_anything_on_switching_same_positions(_) ->
+    S1 = bs_server:get_session(test),
+    Players1 = S1#bridge_session.players,
+    Players2 = bs_server:switch_players(test, north, north), 
+    Players3 = bs_server:switch_players(test, west, west), 
+    Players4 = bs_server:switch_players(test, east, east), 
+    Players5 = bs_server:switch_players(test, south, south), 
+    [
+        ?_assertEqual(Players1, Players2),
+        ?_assertEqual(Players2, Players3),
+        ?_assertEqual(Players3, Players4),
+        ?_assertEqual(Players4, Players5)
+    ].
 % should affect only positions of two players
 sp_affects_only_positions_of_two_players(_) ->
     S1 = bs_server:get_session(test),
@@ -602,7 +893,6 @@ sp_are_all_positions_covered_after_invocation(_) ->
         are_all_positions_covered(Players6),
         are_all_positions_covered(Players7)
     ].
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%% =================   Utility functions   ============== %%%%%%%%%%%%%

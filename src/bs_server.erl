@@ -28,6 +28,7 @@
 -define(TYPE_SPORT, sport).
 -define(TYPE_IMP, imp).
 -define(KNOWN_GAME_TYPES, [rubber, sport, imp]).
+-define(VALID_POSITIONS, [north, south, west, east]).
 
 %%-------------------------------------------------------------------------------------------------------------------------
 %%-------------------------------------------------------------
@@ -45,7 +46,7 @@
 %% API methods
 %%-------------------------------------------------------------
 %% -export([new_game/2, clear_scores/1, clear_last_game/1, process_game/2, set_players/2]).
--export([new_session/0, get_session/1, new_game/2, process_deal/4, remove_game/2, remove_deal/3]).
+-export([new_session/0, get_session/1, new_game/2, process_deal/4, remove_game/2, remove_deal/2]).
 -export([set_player_name/3, switch_players/3]).
 
 
@@ -105,47 +106,105 @@ new_game(SessionId, GameType) ->
 %%-------------------------------------------------------------
 %% process_deal
 %%-------------------------------------------------------------
--spec process_deal(SessionId::atom(), GameType::atom(), Contract::#contract{}, Result::#result{}) -> State::#game_state{}.
+-spec process_deal(SessionId::atom(), GameType::atom(), Contract::#contract{}, Result::#result{}) -> State::#game_state{} |
+                                                        {badarg, non_atom_id} | 
+                                                        {badarg, non_atom_game_type} | 
+                                                        {badarg, invalid_cotract} |
+                                                        {badarg, invalid_result} |
+                                                        {badarg, unknown_game_type} | 
+                                                        {badarg, unknown_session}.
 
+process_deal(SessionId, _GameType, _Contract, _Result) when not is_atom(SessionId)->
+    {badarg, non_atom_id};
+process_deal(_SessionId, GameType, _Contract, _Result) when not is_atom(GameType)->
+    {badarg, non_atom_game_type};
 process_deal(SessionId, GameType, Contract, Result) ->
-    GameState = gen_server:call(?SERVER, {process_deal, SessionId, GameType, Contract, Result}),
-    case GameState#game_state.status of
-        unfinished ->
-            ok;
+    Verification = {lists:member(GameType, ?KNOWN_GAME_TYPES), is_valid_contract(Contract), is_valid_result(Result)},
+    _Return = case Verification of 
+        {false, _, _} -> {badarg, unknown_game_type};
+        {_, false, _} -> {badarg, invalid_contract};
+        {_, _, false} -> {badarg, invalid_result};
         _ ->
-            new_game(SessionId, GameType)
-    end,
-    GameState.
+            GameState = gen_server:call(?SERVER, {process_deal, SessionId, GameType, Contract, Result}),
+            case GameState#game_state.status of
+                unfinished ->
+                    ok;
+                _ ->
+                    new_game(SessionId, GameType)
+            end,
+            GameState
+    end.
+
+is_valid_contract(#contract{level=Level}) when is_integer(Level) ->
+    (Level > 0) and (Level < 8);
+is_valid_contract(_) ->
+    false.
+
+is_valid_result(#result{taken=T, miltons=H}) when is_integer(T) and is_integer(H) ->
+    ((T > 0) and (T < 14)) and ((H > 0) and (H < 41));
+is_valid_result(_) ->
+    false.
 
 %%-------------------------------------------------------------
 %% remove_game
 %%-------------------------------------------------------------
--spec remove_game(SessionId::atom(), GameId::atom()) -> ok | error.
+-spec remove_game(SessionId::atom(), GameId::atom()) -> ok | {badarg, non_atom_id} | 
+                                                        {badarg, unknown_session} |
+                                                        {badarg, unknown_game_id}.
 
+remove_game(SessionId, GameId) when not is_atom(SessionId) or not is_atom(GameId)->
+    {badarg, non_atom_id};
 remove_game(SessionId, GameId) ->
 	gen_server:call(?SERVER, {remove_game, SessionId, GameId}).
 %%-------------------------------------------------------------
 %% remove_deal
 %%-------------------------------------------------------------
--spec remove_deal(SessionId::atom(), GameId::atom(), RoundNo::integer()) -> Result::#game_state{}.
+-spec remove_deal(SessionId::atom(), GameId::atom()) -> Result::#game_state{} |
+                                                        {badarg, non_atom_id} |
+                                                        {badarg, unknown_session} |
+                                                        {badarg, unknown_game_id}.
 
-remove_deal(SessionId, GameId, RoundNo) ->
-	gen_server:call(?SERVER, {remove_deal, SessionId, GameId, RoundNo}).
+remove_deal(SessionId, GameId) when not is_atom(SessionId) or not is_atom(GameId)->
+    {badarg, non_atom_id};
+remove_deal(SessionId, GameId) ->
+	gen_server:call(?SERVER, {remove_deal, SessionId, GameId}).
 %%-------------------------------------------------------------
 %% set_player_name
 %%		position: nort | south | west | east
 %%-------------------------------------------------------------
--spec set_player_name(SessionId::atom(), Position::atom(), NewName::string()) -> Players::[#player{}]. 
+-spec set_player_name(SessionId::atom(), Position::atom(), NewName::string()) -> Players::[#player{}] |
+                                                        {badarg, non_atom_id} | 
+                                                        {badarg, invalid_position} |
+                                                        {badarg, unknown_session}.
 
+set_player_name(SessionId, _Position, _NewName) when not is_atom(SessionId) ->
+    {badarg, non_atom_id};
+set_player_name(_SessionId, _Position, NewName) when not is_atom(NewName) and not is_list(NewName) ->
+    {badarg, invalid_name};
 set_player_name(SessionId, Position, NewName) ->
-	gen_server:call(?SERVER, {set_player_name, SessionId, Position, NewName}).
+    case lists:member(Position, ?VALID_POSITIONS) of
+        true ->
+	        gen_server:call(?SERVER, {set_player_name, SessionId, Position, NewName});
+        false ->
+            {badarg, invalid_position}
+    end.
 %%-------------------------------------------------------------
 %% switch_players
 %%-------------------------------------------------------------
--spec switch_players(SessionId::atom(), Position1::atom(), Position2::atom()) -> Players::list(). 
+-spec switch_players(SessionId::atom(), Position1::atom(), Position2::atom()) -> Players::[#player{}] |
+                                                        {badarg, non_atom_id} | 
+                                                        {badarg, invalid_position} |
+                                                        {badarg, unknown_session}.
 
+switch_players(SessionId, _Position1, _Position2) when not is_atom(SessionId) ->
+    {badarg, non_atom_id};
 switch_players(SessionId, Position1, Position2) ->
-    gen_server:call(?SERVER, {switch_players, SessionId, Position1, Position2}).
+    case {lists:member(Position1, ?VALID_POSITIONS), lists:member(Position2, ?VALID_POSITIONS)} of
+        {true, true} ->
+            gen_server:call(?SERVER, {switch_players, SessionId, Position1, Position2});
+        _ -> 
+            {badarg, invalid_position}
+    end.
 
 %%-------------------------------------------------------------------------------------------------------------------------
 %%-------------------------------------------------------------
@@ -189,35 +248,56 @@ handle_call({new_game, SessionId, GameType}, _From, State)->
     end;
 
 handle_call({process_deal, SessionId, GameType, Contract, Result}, _From, State)->
-    Session = get_session(SessionId, State),
-    NewGameState = handle_process_deal(Session, GameType, Contract, Result),
-    NewSession = Session#bridge_session{games_states=set_current_game(NewGameState, Session#bridge_session.games_states)},
-    NewState = save_session(NewSession, State),
-    {reply, NewGameState, NewState};
+	case get_session(SessionId, State) of
+        {badarg, unknown_session}=Reply -> 
+            {reply, Reply, State};
+        Session ->
+            NewGameState = handle_process_deal(Session, GameType, Contract, Result),
+            NewSession = Session#bridge_session{games_states=set_current_game(NewGameState, Session#bridge_session.games_states)},
+            NewState = save_session(NewSession, State),
+            {reply, NewGameState, NewState}
+    end;
 
 handle_call({remove_game, SessionId, GameId}, _From, State) ->
-	Session = get_session(SessionId, State),
-	NewSession = handle_remove_game(Session, GameId),
-	NewState = save_session(NewSession, State),
-	{reply, ok, NewState};
+	case get_session(SessionId, State) of
+        {badarg, unknown_session}=Reply -> 
+            {reply, Reply, State};
+        Session ->
+	        NewSession = handle_remove_game(Session, GameId),
+	        NewState = save_session(NewSession, State),
+	        {reply, ok, NewState}
+    end;
 
-handle_call({remove_deal, SessionId, GameId, RoundNo}, _From, State) ->
-	Session = get_session(SessionId, State),
-	{GameState, NewSession} = handle_remove_deal(Session, GameId, RoundNo),
-	NewState = save_session(NewSession, State),
-	{reply, GameState, NewState};
+handle_call({remove_deal, SessionId, GameId}, _From, State) ->
+	case get_session(SessionId, State) of
+        {badarg, unknown_session}=Reply -> 
+            {reply, Reply, State};
+        Session ->
+            {reply, not_implemented_yet, State}
+	      %  {GameState, NewSession} = handle_remove_deal(Session, GameId),
+	      %  NewState = save_session(NewSession, State),
+	      %  {reply, GameState, NewState}
+    end;
 
 handle_call({set_player_name, SessionId, Position, Name}, _From, State) ->
-	Session = get_session(SessionId, State),
-	#bridge_session{players=Players}=NewSession = handle_player_name_change(Session, Position, Name),
-	NewState = save_session(NewSession, State),
-	{reply, Players, NewState};
+	case get_session(SessionId, State) of
+        {badarg, unknown_session}=Reply -> 
+            {reply, Reply, State};
+        Session ->
+	        #bridge_session{players=Players}=NewSession = handle_player_name_change(Session, Position, Name),
+	        NewState = save_session(NewSession, State),
+	        {reply, Players, NewState}
+    end;
 
 handle_call({switch_players, SessionId, Position1, Position2}, _From, State) ->
-	Session = get_session(SessionId, State),
-	#bridge_session{players=Players}=NewSession = handle_players_switch(Session, Position1, Position2),
-	NewState = save_session(NewSession, State),
-	{reply, Players, NewState}.
+	case get_session(SessionId, State) of
+        {badarg, unknown_session}=Reply ->
+            {reply, Reply, State};
+        Session ->
+	        #bridge_session{players=Players}=NewSession = handle_players_switch(Session, Position1, Position2),
+	        NewState = save_session(NewSession, State),
+	        {reply, Players, NewState}
+    end.
 
 
 %%-------------------------------------------------------------
@@ -377,7 +457,7 @@ handle_remove_game(Session, GameId) ->
 %% =============================
 %% handle_remove_deal
 %% =============================
-handle_remove_deal(Session, GameId, RoundNo) ->
+handle_remove_deal(Session, GameId) ->
 	{error, not_implemented_yet}.
 %% =============================
 %% handle_player_name_changed

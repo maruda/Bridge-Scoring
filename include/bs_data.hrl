@@ -19,7 +19,7 @@
 %%	doubled:   boolean() (default is false)
 %%	redoubled: boolean() (default is false)
 %%---------------------------------------------------------------------
--record(contract, {owner, color, level, doubled=false, redoubled=false}).
+-record(contract, {owner='NS', color='C', level=1, doubled=false, redoubled=false}).
 
 %%---------------------------------------------------------------------
 %% Data Type: result
@@ -27,7 +27,7 @@
 %%	taken:	0..13 	A number of taken odds 
 %%	milton:	A number of Honor Points summed from both players
 %%---------------------------------------------------------------------
--record(result, {taken, miltons}).
+-record(result, {taken=0, miltons=0}).
 
 %%---------------------------------------------------------------------
 %% Data Type: score

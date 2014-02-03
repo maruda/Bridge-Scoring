@@ -126,22 +126,27 @@ process_deal(SessionId, GameType, Contract, Result) ->
         {_, _, false} -> {badarg, invalid_result};
         _ ->
             GameState = gen_server:call(?SERVER, {process_deal, SessionId, GameType, Contract, Result}),
-            case GameState#game_state.status of
-                unfinished ->
-                    ok;
-                _ ->
-                    new_game(SessionId, GameType)
+            case GameState of
+                {badarg, unknown_session}=Error ->
+                    Error;
+                #game_state{}=GS ->
+                    case GS#game_state.status of
+                        unfinished -> ok;
+                        _ -> new_game(SessionId, GameType)
+                    end;
+                _Other ->
+                    _Other
             end,
             GameState
     end.
 
 is_valid_contract(#contract{level=Level}) when is_integer(Level) ->
-    (Level > 0) and (Level < 8);
+    (Level > 0) and (Level =< 7);
 is_valid_contract(_) ->
     false.
 
 is_valid_result(#result{taken=T, miltons=H}) when is_integer(T) and is_integer(H) ->
-    ((T > 0) and (T < 14)) and ((H > 0) and (H < 41));
+    ((T >= 0) and (T =< 13)) and ((H >= 0) and (H =< 40));
 is_valid_result(_) ->
     false.
 
@@ -263,16 +268,20 @@ handle_call({remove_game, SessionId, GameId}, _From, State) ->
         {badarg, unknown_session}=Reply -> 
             {reply, Reply, State};
         Session ->
-	        NewSession = handle_remove_game(Session, GameId),
-	        NewState = save_session(NewSession, State),
-	        {reply, ok, NewState}
+            case handle_remove_game(Session, GameId) of
+                #bridge_session{}=NewSession ->
+	                NewState = save_session(NewSession, State),
+	                {reply, ok, NewState};
+                Other ->
+                    {reply, Other, State}
+            end
     end;
 
-handle_call({remove_deal, SessionId, GameId}, _From, State) ->
+handle_call({remove_deal, SessionId, _GameId}, _From, State) ->
 	case get_session(SessionId, State) of
         {badarg, unknown_session}=Reply -> 
             {reply, Reply, State};
-        Session ->
+        _Session ->
             {reply, not_implemented_yet, State}
 	      %  {GameState, NewSession} = handle_remove_deal(Session, GameId),
 	      %  NewState = save_session(NewSession, State),
@@ -446,19 +455,25 @@ handle_process_deal(Session, GameType, Contract, Result) ->
 
 handle_process_deal(#game_state{game_type=rubber}=GameState, Contract,#result{taken=Taken}=_Result) ->
 	bs_rubber_score:process(Contract, Taken, GameState);
+handle_process_deal(#game_state{game_type=sport}=_GameState, _Contract,#result{taken=_Taken}=_Result) ->
+    {error, not_implemented_yet};
+handle_process_deal(#game_state{game_type=imp}=_GameState, _Contract,#result{taken=_Taken}=_Result) ->
+    {error, not_implemented_yet};
 handle_process_deal(_GameState, _Contract, _Result) ->
 	{error, unknown_game_type}.
 		
 %% =============================
 %% handle_remove_game
 %% =============================
-handle_remove_game(Session, GameId) ->
-	{error, not_yet_implemented}.
+handle_remove_game(_Session, _GameId) ->
+    {error, not_implemented_yet}.
+
 %% =============================
 %% handle_remove_deal
 %% =============================
-handle_remove_deal(Session, GameId) ->
+handle_remove_deal(_Session, _GameId) ->
 	{error, not_implemented_yet}.
+
 %% =============================
 %% handle_player_name_changed
 %% =============================
